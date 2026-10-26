@@ -12,10 +12,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // لفت�
 
 // 1. الاتصال بقاعدة البيانات
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root', // افتراضي في XAMPP
-    password: '', // افتراضي بدون كلمة مرور
-    database: 'CadetsMitidjaDB'
+    host: 'bdj70168ffojqcl967nx-mysql.services.clever-cloud.com',
+    user: 'urc79olctr3bctj4', // افتراضي في XAMPP
+    password: 'lWo2Nxj2VAJxcZ7K2KIL', // افتراضي بدون كلمة مرور
+    database: 'bdj70168ffojqcl967nx'
 });
 
 db.connect(err => {
