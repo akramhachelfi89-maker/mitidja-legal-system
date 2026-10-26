@@ -566,7 +566,7 @@
             }
         }
 
-        // --- دالة الإرسال الجديدة اللي تخرجلك الخطأ ---
+        // --- دالة الإرسال (النسخة الكاشفة للأخطاء المخفية) ---
         async function submitComplaint(e) { 
             e.preventDefault(); 
             const u = JSON.parse(localStorage.getItem('user')); 
@@ -576,15 +576,23 @@
             
             try {
                 const res = await fetch('/api/complaints', { method: 'POST', body: fd }); 
+                
                 const textResponse = await res.text();
                 
-                if (res.ok) {
+                let data;
+                try { 
+                    data = JSON.parse(textResponse); 
+                } catch(e) { 
+                    data = { success: false, error: textResponse }; 
+                }
+                
+                if (res.ok && data.success !== false && !data.error && !data.sqlMessage) {
                     if(u.role !== 'reception') loadComplaints(); 
                     if(u.role === 'admin') loadStats(); 
                     e.target.reset(); 
                     alert('✅ تم تسجيل وإرسال الملف بنجاح!'); 
                 } else {
-                    alert('❌ حدث خطأ في قاعدة البيانات:\\n' + textResponse);
+                    alert('❌ السيرفر رفض التسجيل! السبب الحقيقي هو:\n' + (data.error || data.sqlMessage || data.message || textResponse));
                 }
             } catch (err) {
                 alert('❌ خطأ في الاتصال: ' + err.message);
