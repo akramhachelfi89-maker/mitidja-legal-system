@@ -29,10 +29,21 @@
     <!-- البوابة العامة -->
     <div id="public-screen" class="min-h-screen flex flex-col">
         <header class="bg-blue-900 text-white shadow-lg p-4 flex justify-between items-center z-20 sticky top-0">
-            <div class="flex items-center gap-3">
-                <img src="logo1.jpeg" class="w-12 h-12 rounded-full border-2 border-white">
-                <div><h1 class="text-xl font-black">أشبال متيجة</h1><p class="text-xs text-blue-200">البوابة القانونية وإدارة النزاعات</p></div>
+            <div class="flex items-center gap-4">
+                <!-- شعار المؤسسة -->
+                <img src="logo1.jpeg" class="w-14 h-14 rounded-full border-2 border-white shadow-sm" alt="شعار المؤسسة">
+                
+                <div class="flex flex-col">
+                    <h1 class="text-2xl font-black text-white tracking-wide">مجمع أشبال متيجة</h1>
+                    <p class="text-xs text-orange-300 font-bold mt-1">البوابة القانونية وإدارة النزاعات</p>
+                </div>
+
+                <!-- شعار الأيزو (Logo 2) -->
+                <div class="mr-4 pl-4 border-r border-blue-700 flex items-center">
+                    <img src="logo2.jpeg" onerror="this.src='logo2.png'" class="h-12 bg-white rounded p-1 shadow-sm" alt="ISO Logo">
+                </div>
             </div>
+            
             <div class="flex gap-2">
                 <button onclick="openLoginModal('legal')" class="bg-blue-700 hover:bg-blue-600 px-4 py-2 rounded-lg text-sm font-bold shadow transition"><i class="fas fa-user-shield ml-1"></i> الشؤون القانونية</button>
                 <button onclick="openLoginModal('admin')" class="bg-gray-800 hover:bg-black px-4 py-2 rounded-lg text-sm font-bold shadow transition"><i class="fas fa-user-tie ml-1"></i> المدير العام</button>
@@ -40,14 +51,14 @@
         </header>
 
         <main class="flex-1 p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto w-full">
-            <div class="bg-white p-6 rounded-2xl shadow-xl border-t-4 border-green-500">
-                <h2 class="text-2xl font-black mb-6 text-gray-800 border-b pb-3"><i class="fas fa-edit text-green-500 ml-2"></i>تسجيل شكوى أو نزاع</h2>
+            <div class="bg-white p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
+                <h2 class="text-2xl font-black mb-6 text-gray-800 border-b pb-3"><i class="fas fa-edit text-orange-500 ml-2"></i>تسجيل شكوى أو نزاع</h2>
                 <form onsubmit="submitComplaint(event)">
-                    <div class="mb-4"><label class="block text-sm font-bold text-gray-700 mb-2">عنوان الملف *</label><input type="text" name="title" class="border-2 p-3 rounded-xl w-full focus:border-green-500 outline-none" required></div>
-                    <div class="mb-4"><label class="block text-sm font-bold text-gray-700 mb-2">نوع التسجيل *</label><select name="complaintType" class="border-2 p-3 rounded-xl w-full bg-gray-50 outline-none focus:border-green-500"><option>نزاع بين موظفين</option><option>استشارة قانونية</option><option>مطلب إداري</option><option>جلسة إنصات</option></select></div>
-                    <div class="mb-4"><label class="block text-sm font-bold text-gray-700 mb-2">التفاصيل والوقائع *</label><textarea name="description" rows="4" class="w-full border-2 p-3 rounded-xl focus:border-green-500 outline-none" required></textarea></div>
+                    <div class="mb-4"><label class="block text-sm font-bold text-gray-700 mb-2">عنوان الملف *</label><input type="text" name="title" class="border-2 p-3 rounded-xl w-full focus:border-orange-500 outline-none transition" required></div>
+                    <div class="mb-4"><label class="block text-sm font-bold text-gray-700 mb-2">نوع التسجيل *</label><select name="complaintType" class="border-2 p-3 rounded-xl w-full bg-gray-50 outline-none focus:border-orange-500 transition"><option>نزاع بين موظفين</option><option>استشارة قانونية</option><option>مطلب إداري</option><option>جلسة إنصات</option></select></div>
+                    <div class="mb-4"><label class="block text-sm font-bold text-gray-700 mb-2">التفاصيل والوقائع *</label><textarea name="description" rows="4" class="w-full border-2 p-3 rounded-xl focus:border-orange-500 outline-none transition" required></textarea></div>
                     <div class="mb-6"><label class="block text-sm font-bold text-gray-700 mb-2">المرفقات (اختياري)</label><input type="file" name="file" class="w-full border-2 border-dashed p-2 rounded-xl bg-gray-50"></div>
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-lg"><i class="fas fa-paper-plane ml-2"></i>إرسال للمصلحة القانونية</button>
+                    <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl shadow-lg transition text-lg"><i class="fas fa-paper-plane ml-2"></i>إرسال للمصلحة القانونية</button>
                 </form>
             </div>
             <div class="flex flex-col">
@@ -230,7 +241,7 @@
                 addLink('متابعة الملفات', 'view-complaints-list', 'fa-check-double'); 
                 addLink('الاستفسارات', 'view-inquiries', 'fa-question-circle');
                 addLink('الإنذارات', 'view-warnings', 'fa-exclamation-triangle');
-                addLink('المرجع القانوني', 'view-laws', 'fa-scale-balanced'); // هنا غيرنا الكلمة للمدير
+                addLink('المرجع القانوني', 'view-laws', 'fa-scale-balanced');
                 addLink('حسابات النظام', 'view-users', 'fa-users-cog'); 
                 showViews('view-dashboard', 'لوحة القيادة');
             }
@@ -320,7 +331,7 @@
         function printReport(id) {
             const c = allComplaints.find(x => x.ComplaintID === id);
             const ref = `AM-${new Date().getFullYear()}-${c.ComplaintID.toString().padStart(4, '0')}`;
-            const html = `<div dir="rtl" style="font-family: Tajawal; padding:40px; color:#1f2937;"><div style="display:flex; justify-content:space-between; border-bottom:2px solid #1e3a8a; padding-bottom:15px; margin-bottom:30px;"><img src="logo1.jpeg" style="height:90px; border-radius:50%;"><div style="text-align:center;"><h2 style="font-weight:900; font-size:22px;">مجمع أشبال متيجة</h2><h3 style="color:#1e3a8a; font-weight:bold;">الشؤون القانونية</h3></div><div style="background:#f3f4f6; padding:12px; border-radius:8px;">رقم: <b style="color:#1e3a8a;">${ref}</b><br>تاريخ: <b>${new Date().toLocaleDateString()}</b></div></div><h3 style="text-align:center; font-weight:900; margin-bottom:30px;">تقرير: ${c.Title}</h3><div style="background:#f9fafb; padding:20px; border-radius:8px; margin-bottom:20px;"><b>تصنيف:</b> ${c.ComplaintType}<br><br><b>الوقائع:</b> ${c.Description}</div><div style="background:#fff; padding:20px; border-radius:8px; border:1px solid #e5e7eb;"><b>متابعة:</b> ${c.ProgressReports||'لا يوجد'}<br><br><b>قرار المصلحة:</b> ${c.LegalOpinion||'قيد الدراسة'}<br><br><b style="color:#166534;">قرار الإدارة:</b> ${c.AdminDecision||'لم يفصل'} (${c.Status})</div><br><br><div style="display:flex; justify-content:space-around; font-weight:bold;"><p style="border-top:1px solid #000; padding-top:10px;">الشؤون القانونية</p><p style="border-top:1px solid #000; padding-top:10px;">المدير العام</p></div></div>`;
+            const html = `<div dir="rtl" style="font-family: Tajawal; padding:40px; color:#1f2937;"><div style="display:flex; justify-content:space-between; border-bottom:2px solid #1e3a8a; padding-bottom:15px; margin-bottom:30px;"><div style="display:flex; align-items:center; gap:10px;"><img src="logo1.jpeg" style="height:70px; border-radius:50%;"><img src="logo2.jpeg" style="height:60px; border-radius:5px;" onerror="this.style.display='none'"></div><div style="text-align:center;"><h2 style="font-weight:900; font-size:22px;">مجمع أشبال متيجة</h2><h3 style="color:#1e3a8a; font-weight:bold;">الشؤون القانونية</h3></div><div style="background:#f3f4f6; padding:12px; border-radius:8px;">رقم: <b style="color:#1e3a8a;">${ref}</b><br>تاريخ: <b>${new Date().toLocaleDateString()}</b></div></div><h3 style="text-align:center; font-weight:900; margin-bottom:30px;">تقرير: ${c.Title}</h3><div style="background:#f9fafb; padding:20px; border-radius:8px; margin-bottom:20px;"><b>تصنيف:</b> ${c.ComplaintType}<br><br><b>الوقائع:</b> ${c.Description}</div><div style="background:#fff; padding:20px; border-radius:8px; border:1px solid #e5e7eb;"><b>متابعة:</b> ${c.ProgressReports||'لا يوجد'}<br><br><b>قرار المصلحة:</b> ${c.LegalOpinion||'قيد الدراسة'}<br><br><b style="color:#166534;">قرار الإدارة:</b> ${c.AdminDecision||'لم يفصل'} (${c.Status})</div><br><br><div style="display:flex; justify-content:space-around; font-weight:bold;"><p style="border-top:1px solid #000; padding-top:10px;">الشؤون القانونية</p><p style="border-top:1px solid #000; padding-top:10px;">المدير العام</p></div></div>`;
             document.body.innerHTML = html; window.print(); location.reload();
         }
 
@@ -334,7 +345,6 @@
             }
         }
 
-        // --- القوانين (العموم والمسؤولين حسب الصلاحية) ---
         async function loadPublicLaws() {
             const res = await fetch('/api/laws'); const data = await res.json();
             let html = '';
@@ -347,17 +357,14 @@
             const role = JSON.parse(localStorage.getItem('user')).role;
             let html = '';
             
-            // تغيير عنوان القسم حسب الصلاحية
             const titleEl = document.getElementById('laws-section-title');
             if(role === 'legal') titleEl.innerHTML = '<i class="fas fa-gavel text-blue-600 ml-2"></i>تعديل المرجع القانوني (يظهر للعموم)';
             else titleEl.innerHTML = '<i class="fas fa-gavel text-blue-600 ml-2"></i>الاطلاع على المرجع القانوني';
 
             data.laws.forEach(l => { 
                 if (role === 'legal') {
-                    // مصلحة الشؤون القانونية تقدر تعدل
                     html += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm"><label class="font-bold block mb-3 text-blue-900">${l.LawType}</label><textarea rows="5" onblur="updateLaw('${l.LawType}', this.value)" class="w-full border p-3 rounded-lg focus:border-blue-500 outline-none">${l.Content}</textarea></div>`; 
                 } else {
-                    // المدير العام يشوف برك
                     html += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm"><label class="font-bold block mb-3 text-blue-900">${l.LawType}</label><div class="w-full p-3 bg-gray-200 text-gray-700 rounded-lg whitespace-pre-wrap text-sm">${l.Content || 'لا توجد نصوص مسجلة'}</div></div>`;
                 }
             });
@@ -370,7 +377,6 @@
         }
         async function updateLaw(type, content) { await fetch('/api/laws', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({type, content}) }); }
 
-        // --- باقي الدوال ---
         async function loadLawyers() { const res = await fetch('/api/lawyers'); const data = await res.json(); const sel = document.getElementById('lawyer-select'); const tb = document.getElementById('lawyers-table-body'); if(sel) sel.innerHTML = '<option value="">-- اختر المحامي --</option>'; if(tb) tb.innerHTML = ''; data.lawyers.forEach(l => { if(sel) sel.innerHTML += `<option value="${l.LawyerID}">${l.FullName}</option>`; if(tb) tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 font-bold">${l.FullName}</td><td class="p-3" dir="ltr">${l.PhoneNumber}</td><td class="p-3 text-gray-500" dir="ltr">${l.Email || '-'}</td><td class="p-3 text-center"><button onclick="deleteLawyer(${l.LawyerID})" class="bg-red-100 text-red-700 px-3 rounded"><i class="fas fa-trash"></i></button></td></tr>`; }); }
         async function submitLawyer(e) { e.preventDefault(); await fetch('/api/lawyers', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fullName: document.getElementById('lawyer-name').value, email: document.getElementById('lawyer-email').value, phone: document.getElementById('lawyer-phone').value}) }); e.target.reset(); loadLawyers(); alert('✅ تم حفظ المحامي'); }
         async function deleteLawyer(id) { if(confirm('حذف؟')) { await fetch(`/api/lawyers/${id}`, { method: 'DELETE' }); loadLawyers(); } }
