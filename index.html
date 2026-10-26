@@ -517,11 +517,8 @@
                 }
 
                 allComplaints.forEach(c => {
-                    // حماية الكود مهما كان اسم الـ ID في قاعدة البيانات
                     const cID = c.ComplaintID || c.complaint_id || c.id || 1;
                     const refNumber = `AM-${new Date().getFullYear()}-${cID.toString().padStart(4, '0')}`;
-                    
-                    // تلوين السطر أوتوماتيكياً (استعملنا دالة getDeadlineStatusClass)
                     const createdDate = c.CreatedAt || c.created_at || new Date();
                     const rowClass = (role === 'legal' && c.Status !== 'مقبولة' && c.Status !== 'مرفوضة') ? getDeadlineStatusClass(createdDate) : '';
 
@@ -569,7 +566,31 @@
             }
         }
 
-        async function submitComplaint(e) { e.preventDefault(); const u = JSON.parse(localStorage.getItem('user')); const fd = new FormData(e.target); fd.append('createdBy_FullName', u.fullName); fd.append('createdBy_Role', u.role); await fetch('/api/complaints', { method: 'POST', body: fd }); if(u.role !== 'reception') loadComplaints(); if(u.role === 'admin') loadStats(); e.target.reset(); alert('✅ تم تسجيل وإرسال الملف بنجاح!'); }
+        // --- دالة الإرسال الجديدة اللي تخرجلك الخطأ ---
+        async function submitComplaint(e) { 
+            e.preventDefault(); 
+            const u = JSON.parse(localStorage.getItem('user')); 
+            const fd = new FormData(e.target); 
+            fd.append('createdBy_FullName', u.fullName); 
+            fd.append('createdBy_Role', u.role); 
+            
+            try {
+                const res = await fetch('/api/complaints', { method: 'POST', body: fd }); 
+                const textResponse = await res.text();
+                
+                if (res.ok) {
+                    if(u.role !== 'reception') loadComplaints(); 
+                    if(u.role === 'admin') loadStats(); 
+                    e.target.reset(); 
+                    alert('✅ تم تسجيل وإرسال الملف بنجاح!'); 
+                } else {
+                    alert('❌ حدث خطأ في قاعدة البيانات:\\n' + textResponse);
+                }
+            } catch (err) {
+                alert('❌ خطأ في الاتصال: ' + err.message);
+            }
+        }
+
         async function scheduleHearing(id) { const d = document.getElementById(`d-${id}`).value, t = document.getElementById(`t-${id}`).value; if(d&&t) { await fetch(`/api/complaints/${id}/schedule`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({date:d, time:t}) }); loadComplaints(); } }
         async function getAIOpinion(id) { await fetch(`/api/complaints/${id}/ai`, { method: 'PUT' }); loadComplaints(); }
         async function addLegalOpinion(id) { const op = prompt('سجل الرأي القانوني لمصلحة النزاعات:'); if(op) { await fetch(`/api/complaints/${id}/legal`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({legalOpinion: op}) }); loadComplaints(); } }
