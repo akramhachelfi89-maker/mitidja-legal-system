@@ -10,17 +10,24 @@ app.use(express.json());
 app.use(express.static(__dirname)); // لفتح واجهات HTML من نفس المجلد
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // لفتح الملفات المرفقة
 
-// 1. الاتصال بقاعدة البيانات
-const db = mysql.createConnection({
+// ==========================================
+// 1. الاتصال بقاعدة البيانات (نظام Pool لتفادي الانقطاع)
+// ==========================================
+const db = mysql.createPool({
+    connectionLimit: 10, // يسمح بـ 10 اتصالات متزامنة
     host: 'bdj70168ffojqcl967nx-mysql.services.clever-cloud.com',
     user: 'urc79olctr3bctj4', 
     password: 'lWo2Nxj2VAJxcZ7K2KIL', 
     database: 'bdj70168ffojqcl967nx'
 });
 
-db.connect(err => {
-    if (err) console.error('خطأ في الاتصال بقاعدة البيانات:', err);
-    else console.log('تم الاتصال بنجاح بقاعدة البيانات MySQL');
+// اختبار الاتصال عند تشغيل السيرفر
+db.getConnection((err, connection) => {
+    if (err) console.error('خطأ في الاتصال بقاعدة البيانات:', err.code);
+    else {
+        console.log('✅ تم الاتصال بنجاح بقاعدة البيانات MySQL (نظام Pool)');
+        connection.release(); // تحرير الاتصال بعد الاختبار
+    }
 });
 
 // 2. إعدادات رفع الملفات (Multer)
@@ -38,7 +45,10 @@ const upload = multer({ storage });
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
     db.query('SELECT * FROM users WHERE Username = ? AND PasswordHash = ?', [username, password], (err, results) => {
-        if (err) return res.status(500).json({ success: false, message: 'خطأ في السيرفر' });
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, message: 'خطأ في السيرفر الداخلي' });
+        }
         if (results.length > 0) {
             const user = results[0];
             res.json({ success: true, user: { id: user.UserID, fullName: user.FullName, role: user.Role } });
@@ -150,6 +160,10 @@ app.get('/api/backup', (req, res) => {
     });
 });
 
+// ==========================================
+// إدارة المحامين، العقود، القوانين والإنذارات
+// ==========================================
+
 // --- إدارة المحامين والعقود ---
 app.get('/api/lawyers', (req, res) => {
     db.query('SELECT * FROM Lawyers', (err, results) => res.json({ success: true, lawyers: results || [] }));
@@ -185,10 +199,6 @@ app.get('/api/notifications/count', (req, res) => {
     });
 });
 
-// ==========================================
-// الاستفسارات والإنذارات (مع صلاحيات المدير)
-// ==========================================
-
 // --- الاستفسارات ---
 app.get('/api/inquiries', (req, res) => {
     db.query('SELECT * FROM Inquiries ORDER BY InquiryID DESC', (err, results) => res.json({ success: true, inquiries: results || [] }));
@@ -197,7 +207,6 @@ app.post('/api/inquiries', (req, res) => {
     const { title, content, createdBy } = req.body;
     db.query('INSERT INTO Inquiries (Title, Content, CreatedBy) VALUES (?, ?, ?)', [title, content, createdBy], err => res.json({ success: !err }));
 });
-// رد المدير على الاستفسار
 app.put('/api/inquiries/:id/admin', (req, res) => {
     db.query('UPDATE Inquiries SET AdminReply = ?, Status = "تم الرد" WHERE InquiryID = ?', [req.body.reply, req.params.id], err => res.json({ success: !err }));
 });
@@ -210,7 +219,6 @@ app.post('/api/warnings', (req, res) => {
     const { employeeName, reason, createdBy } = req.body;
     db.query('INSERT INTO Warnings (EmployeeName, Reason, CreatedBy) VALUES (?, ?, ?)', [employeeName, reason, createdBy], err => res.json({ success: !err }));
 });
-// توجيه المدير على الإنذار
 app.put('/api/warnings/:id/admin', (req, res) => {
     db.query('UPDATE Warnings SET AdminDecision = ?, Status = "مؤكد" WHERE WarningID = ?', [req.body.decision, req.params.id], err => res.json({ success: !err }));
 });
