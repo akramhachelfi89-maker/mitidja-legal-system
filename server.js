@@ -1,83 +1,124 @@
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 
 const app = express();
-// تعديل المنفذ ليتوافق مع الاستضافة السحابية أو يعمل على 3000 محلياً
-const PORT = process.env.PORT || 3000;
-
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use(express.static(__dirname)); 
+app.use(express.static(__dirname)); // لفتح واجهات HTML من نفس المجلد
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // لفتح الملفات المرفقة
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-
-// معلومات الاتصال بقاعدة البيانات السحابية (Clever Cloud)
+// 1. الاتصال بقاعدة البيانات
 const db = mysql.createConnection({
-    host: 'bdj70168ffojqcl967nx-mysql.services.clever-cloud.com',
-    user: 'urc79o1ctr3bctj4',
-    password: 'lWO2Nxj2VAJxCZ7K2KIL',
-    database: 'bdj70168ffojqcl967nx',
-    port: 3306
+    host: 'localhost',
+    user: 'root', // افتراضي في XAMPP
+    password: '', // افتراضي بدون كلمة مرور
+    database: 'CadetsMitidjaDB'
 });
 
-db.connect(err => { 
-    if (err) console.error('❌ خطأ في الاتصال بقاعدة البيانات:', err.message); 
-    else console.log('✅ تم الاتصال بقاعدة البيانات السحابية بنجاح!'); 
+db.connect(err => {
+    if (err) console.error('خطأ في الاتصال بقاعدة البيانات:', err);
+    else console.log('تم الاتصال بنجاح بقاعدة البيانات MySQL');
 });
 
-const upload = multer({ 
-    storage: multer.diskStorage({ 
-        destination: (req, file, cb) => cb(null, 'uploads/'), 
-        filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname) 
-    }) 
+// 2. إعدادات رفع الملفات (Multer)
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
+const upload = multer({ storage });
 
-// --- الدخول والمستخدمين ---
+// ==========================================
+// مسارات السيرفر (API Endpoints)
+// ==========================================
+
+// --- تسجيل الدخول ---
 app.post('/api/login', (req, res) => {
-    db.query('SELECT * FROM Users WHERE Username = ? AND PasswordHash = ?', [req.body.username, req.body.password], (err, results) => {
-        if (err || results.length === 0) return res.status(401).json({ success: false, message: 'بيانات الدخول خاطئة' });
-        res.json({ success: true, user: { id: results[0].UserID, fullName: results[0].FullName, role: results[0].Role } });
+    const { username, password } = req.body;
+    db.query('SELECT * FROM Users WHERE Username = ? AND Password = ?', [username, password], (err, results) => {
+        if (err) return res.status(500).json({ success: false, message: 'خطأ في السيرفر' });
+        if (results.length > 0) {
+            const user = results[0];
+            res.json({ success: true, user: { id: user.UserID, fullName: user.FullName, role: user.Role } });
+        } else {
+            res.status(401).json({ success: false, message: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
+        }
     });
 });
-app.get('/api/users', (req, res) => { db.query('SELECT UserID, FullName, Username, Role FROM Users', (err, results) => res.json({ success: !err, users: results })); });
-app.post('/api/users', (req, res) => { db.query('INSERT INTO Users (FullName, Username, PasswordHash, Role) VALUES (?, ?, ?, ?)', [req.body.fullName, req.body.username, req.body.password, req.body.role], err => res.json({ success: !err })); });
-app.delete('/api/users/:id', (req, res) => { db.query('DELETE FROM Users WHERE UserID = ?', [req.params.id], err => res.json({ success: !err })); });
 
-// --- الإحصائيات ---
+// --- الإحصائيات (المدير العام) ---
 app.get('/api/stats', (req, res) => {
-    db.query(`SELECT COUNT(*) as total, SUM(CASE WHEN Status = 'مقبولة' THEN 1 ELSE 0 END) as accepted, SUM(CASE WHEN Status = 'مرفوضة' THEN 1 ELSE 0 END) as rejected, SUM(CASE WHEN Status NOT IN ('مقبولة', 'مرفوضة') THEN 1 ELSE 0 END) as pending FROM Complaints`, (err, results) => {
-        res.json({ success: !err, stats: results[0] });
+    const stats = {};
+    db.query('SELECT COUNT(*) as total FROM Complaints', (err, res1) => {
+        if(err) return res.json({ success: false });
+        stats.total = res1[0].total;
+        db.query('SELECT COUNT(*) as pending FROM Complaints WHERE Status = "تسجيل أولي" OR Status = "قيد دراسة المدير"', (err, res2) => {
+            stats.pending = res2[0].pending;
+            db.query('SELECT COUNT(*) as accepted FROM Complaints WHERE Status = "مقبولة"', (err, res3) => {
+                stats.accepted = res3[0].accepted;
+                db.query('SELECT COUNT(*) as rejected FROM Complaints WHERE Status = "مرفوضة"', (err, res4) => {
+                    stats.rejected = res4[0].rejected;
+                    res.json({ success: true, stats });
+                });
+            });
+        });
     });
 });
 
-// --- الشكاوى والملفات ---
+// --- إدارة المستخدمين ---
+app.get('/api/users', (req, res) => {
+    db.query('SELECT * FROM Users', (err, results) => res.json({ success: true, users: results || [] }));
+});
+app.post('/api/users', (req, res) => {
+    const { fullName, username, password, role } = req.body;
+    db.query('INSERT INTO Users (FullName, Username, Password, Role) VALUES (?, ?, ?, ?)', [fullName, username, password, role], err => res.json({ success: !err }));
+});
+app.delete('/api/users/:id', (req, res) => {
+    db.query('DELETE FROM Users WHERE UserID = ?', [req.params.id], err => res.json({ success: !err }));
+});
+
+// --- إدارة النزاعات والملفات ---
+app.get('/api/complaints', (req, res) => {
+    db.query('SELECT * FROM Complaints ORDER BY ComplaintID DESC', (err, results) => res.json({ success: true, complaints: results || [] }));
+});
 app.post('/api/complaints', upload.single('file'), (req, res) => {
-    const filePath = req.file ? req.file.path.replace(/\\/g, "/") : null;
-    db.query(`INSERT INTO Complaints (Title, ComplaintType, Description, FilePath, CreatedBy_FullName, CreatedBy_Role, Status) VALUES (?, ?, ?, ?, ?, ?, 'تسجيل أولي')`, 
-        [req.body.title, req.body.complaintType, req.body.description, filePath, req.body.createdBy_FullName, req.body.createdBy_Role], err => res.json({ success: !err }));
+    const { title, complaintType, description, createdBy_FullName, createdBy_Role } = req.body;
+    const filePath = req.file ? 'uploads/' + req.file.filename : null;
+    db.query('INSERT INTO Complaints (Title, ComplaintType, Description, FilePath, CreatedBy_FullName, CreatedBy_Role) VALUES (?, ?, ?, ?, ?, ?)', 
+    [title, complaintType, description, filePath, createdBy_FullName, createdBy_Role], err => res.json({ success: !err }));
 });
-app.get('/api/complaints', (req, res) => { db.query('SELECT * FROM Complaints ORDER BY CreatedAt DESC', (err, results) => res.json({ success: !err, complaints: results })); });
-app.delete('/api/complaints/:id', (req, res) => { db.query('DELETE FROM Complaints WHERE ComplaintID = ?', [req.params.id], err => res.json({ success: !err })); });
-app.put('/api/complaints/:id/schedule', (req, res) => { db.query('UPDATE Complaints SET HearingDate = ?, HearingTime = ?, Status = "مبرمجة للإنصات" WHERE ComplaintID = ?', [req.body.date, req.body.time, req.params.id], err => res.json({ success: !err })); });
-app.put('/api/complaints/:id/ai', (req, res) => { const aiOpinion = "تحليل الذكاء الاصطناعي: يُنصح بإجراء تحقيق إداري."; db.query('UPDATE Complaints SET AIOpinion = ? WHERE ComplaintID = ?', [aiOpinion, req.params.id], err => res.json({ success: !err })); });
-app.put('/api/complaints/:id/legal', (req, res) => { db.query('UPDATE Complaints SET LegalOpinion = ?, Status = "قيد دراسة المدير" WHERE ComplaintID = ?', [req.body.legalOpinion, req.params.id], err => res.json({ success: !err })); });
-app.put('/api/complaints/:id/admin', (req, res) => { db.query('UPDATE Complaints SET AdminDecision = ?, Status = ? WHERE ComplaintID = ?', [req.body.adminDecision, req.body.status, req.params.id], err => res.json({ success: !err })); });
+app.delete('/api/complaints/:id', (req, res) => {
+    db.query('DELETE FROM Complaints WHERE ComplaintID = ?', [req.params.id], err => res.json({ success: !err }));
+});
+// برمجة الجلسة (الاستماع)
+app.put('/api/complaints/:id/schedule', (req, res) => {
+    db.query('UPDATE Complaints SET HearingDate = ?, HearingTime = ? WHERE ComplaintID = ?', [req.body.date, req.body.time, req.params.id], err => res.json({ success: !err }));
+});
+// رأي الشؤون القانونية
+app.put('/api/complaints/:id/legal', (req, res) => {
+    db.query('UPDATE Complaints SET LegalOpinion = ?, Status = "قيد دراسة المدير" WHERE ComplaintID = ?', [req.body.legalOpinion, req.params.id], err => res.json({ success: !err }));
+});
+// قرار المدير العام
+app.put('/api/complaints/:id/admin', (req, res) => {
+    db.query('UPDATE Complaints SET AdminDecision = ?, Status = ? WHERE ComplaintID = ?', [req.body.adminDecision, req.body.status, req.params.id], err => res.json({ success: !err }));
+});
+// الذكاء الاصطناعي (محاكاة مؤقتة)
+app.put('/api/complaints/:id/ai', (req, res) => {
+    db.query('UPDATE Complaints SET AIOpinion = "بناءً على المعطيات، يُنصح بالرجوع إلى المادة 42 من النظام الداخلي للمؤسسة المتعلقة بالنزاعات، وإجراء جلسة صلح بين الأطراف كخطوة أولى." WHERE ComplaintID = ?', [req.params.id], err => res.json({ success: !err }));
+});
 
-// --- القوانين ---
-app.get('/api/laws', (req, res) => { db.query('SELECT * FROM Laws', (err, results) => res.json({ success: !err, laws: results })); });
-app.put('/api/laws', (req, res) => { db.query('UPDATE Laws SET Content = ? WHERE LawType = ?', [req.body.content, req.body.type], err => res.json({ success: !err })); });
-
-// --- المحامين والعقود ---
-app.post('/api/lawyers', (req, res) => { db.query('INSERT INTO Lawyers (FullName, Email, PhoneNumber) VALUES (?, ?, ?)', [req.body.fullName, req.body.email, req.body.phone], err => res.json({ success: !err })); });
-app.get('/api/lawyers', (req, res) => { db.query('SELECT * FROM Lawyers', (err, results) => res.json({ success: !err, lawyers: results })); });
-app.delete('/api/lawyers/:id', (req, res) => { db.query('DELETE FROM Lawyers WHERE LawyerID = ?', [req.params.id], err => res.json({ success: !err })); });
+// --- إدارة المحامين والعقود ---
+app.get('/api/lawyers', (req, res) => {
+    db.query('SELECT * FROM Lawyers', (err, results) => res.json({ success: true, lawyers: results || [] }));
+});
+app.post('/api/lawyers', (req, res) => {
+    const { fullName, email, phone } = req.body;
+    db.query('INSERT INTO Lawyers (FullName, Email, PhoneNumber) VALUES (?, ?, ?)', [fullName, email, phone], err => res.json({ success: !err }));
+});
+app.delete('/api/lawyers/:id', (req, res) => {
+    db.query('DELETE FROM Lawyers WHERE LawyerID = ?', [req.params.id], err => res.json({ success: !err }));
+});
 app.post('/api/contracts', upload.single('file'), (req, res) => {
-    const filePath = req.file ? req.file.path.replace(/\\/g, "/") : null;
-    db.query('INSERT INTO Contracts (EmployeeName, ContractType, FilePath, LawyerID, CreatedBy_FullName) VALUES (?, ?, ?, ?, ?)', [req.body.employeeName, req.body.contractType, filePath, req.body.lawyerId, req.body.createdBy], err => res.json({ success: !err }));
-});
-
-app.listen(PORT, () => console.log(`🚀 السيرفر شغال على المنفذ ${PORT}`));
+    const { employeeName, contractType, lawyerId, createdBy } = req.body
