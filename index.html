@@ -14,7 +14,7 @@
         .view-section { display: none; }
         .view-section.active { display: block; }
         
-        /* 1. ألوان الحالات والآجال */
+        /* ألوان الحالات والآجال */
         .status-safe { background-color: #f0fdf4 !important; border-right: 4px solid #10b981 !important; }
         .status-warning { background-color: #fffbeb !important; border-right: 4px solid #f59e0b !important; }
         .status-danger { background-color: #fef2f2 !important; border-right: 4px solid #ef4444 !important; }
@@ -86,7 +86,7 @@
             <header id="topbar" class="bg-white shadow px-6 py-4 flex justify-between items-center z-10">
                 <h2 id="page-title" class="text-xl font-bold text-gray-800">الرئيسية</h2>
                 <div class="flex items-center gap-4">
-                    <!-- 2. زر Sauvegarde -->
+                    <!-- زر Sauvegarde -->
                     <button onclick="backupDatabase()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
                         <i class="fas fa-database"></i> Sauvegarde
                     </button>
@@ -260,15 +260,12 @@
         let allComplaints = []; 
         let lastNotifCount = 0; 
 
-        // 3. دالة حساب الآجال للون
+        // دالة حساب الآجال للون
         function getDeadlineStatusClass(dateString) {
             if (!dateString) return '';
             const today = new Date();
             const createdDate = new Date(dateString);
-            
-            // إضافة 7 أيام
             createdDate.setDate(createdDate.getDate() + 7);
-            
             const diffTime = createdDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
@@ -277,7 +274,7 @@
             return 'status-safe';                        // أخضر (في الآجال)
         }
 
-        // 4. دالة زر Backup
+        // دالة زر Backup
         async function backupDatabase() {
             try {
                 alert('جاري تجهيز النسخة الاحتياطية... يرجى الانتظار.');
@@ -500,60 +497,76 @@
         }
 
         // ==========================================
-        // الشكاوى والنزاعات
+        // الشكاوى والنزاعات (النسخة المحدثة)
         // ==========================================
 
         async function loadComplaints() {
-            const res = await fetch('/api/complaints'); const data = await res.json();
-            allComplaints = data.complaints;
-            const role = JSON.parse(localStorage.getItem('user')).role;
-            const tbody = document.getElementById('complaints-table-body'); if(!tbody) return; tbody.innerHTML = '';
-            
-            data.complaints.forEach(c => {
-                const refNumber = `AM-${new Date().getFullYear()}-${c.ComplaintID.toString().padStart(4, '0')}`;
-                // تلوين السطر أوتوماتيكياً (استعملنا دالة getDeadlineStatusClass المضافة حديثاً)
-                const rowClass = (role === 'legal' && c.Status !== 'مقبولة' && c.Status !== 'مرفوضة') ? getDeadlineStatusClass(c.CreatedAt) : '';
-
-                let details = `<div class="mb-3"><span class="text-xs font-mono font-bold bg-blue-100 text-blue-900 px-2 py-1 rounded shadow-sm"><i class="fas fa-hashtag"></i> ${refNumber}</span></div>`;
-                details += `<p class="font-black text-lg text-gray-800 mb-1">${c.Title}</p><span class="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-1 rounded">${c.ComplaintType}</span><p class="text-sm mt-2 text-gray-600 leading-relaxed">${c.Description}</p>`;
-                if(c.FilePath) details += `<br><a href="/${c.FilePath}" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold text-sm mt-2 inline-block"><i class="fas fa-paperclip"></i> تحميل المرفق</a>`;
+            try {
+                const res = await fetch('/api/complaints'); 
+                const data = await res.json();
+                allComplaints = data.complaints || [];
+                const role = JSON.parse(localStorage.getItem('user')).role;
+                const tbody = document.getElementById('complaints-table-body'); 
+                if(!tbody) return; 
+                tbody.innerHTML = '';
                 
-                if(c.AIOpinion && (role === 'legal' || role === 'admin')) { details += `<div class="bg-purple-50 p-3 mt-3 text-sm border-r-4 border-purple-500 rounded-l shadow-sm">🤖 <b class="text-purple-900">الذكاء الاصطناعي:</b> <span class="text-gray-700">${c.AIOpinion}</span></div>`; }
-                if(c.LegalOpinion && (role === 'legal' || role === 'admin')) { details += `<div class="bg-gray-100 p-3 mt-2 text-sm border-r-4 border-gray-600 rounded-l shadow-sm">✍️ <b class="text-gray-800">مصلحة النزاعات:</b> <span class="text-gray-700">${c.LegalOpinion}</span></div>`; }
-                if(c.AdminDecision && (role === 'legal' || role === 'admin')) { details += `<div class="bg-green-50 p-3 mt-2 text-sm border-r-4 border-green-600 font-bold text-green-900 rounded-l shadow-sm">👨‍💼 قرار الإدارة العامة: ${c.AdminDecision}</div>`; }
-                
-                let statusInfo = `<span class="font-bold text-gray-800 bg-gray-100 px-3 py-1 rounded">${c.Status}</span>`;
-                if(c.HearingDate) statusInfo += `<div class="mt-3 text-red-700 font-bold bg-red-50 p-2 text-sm text-center rounded border border-red-200"><i class="fas fa-calendar-alt"></i> موعد مبرمج:<br>${c.HearingDate.split('T')[0]} - ${c.HearingTime}</div>`;
-
-                let actions = '';
-                if (role === 'legal' && !c.HearingDate && (c.Status === 'تسجيل أولي' || c.Status === 'قيد دراسة المدير')) {
-                    actions += `<div class="flex flex-col gap-1.5 no-print mb-3 bg-white p-2 rounded border border-gray-200"><input type="date" id="d-${c.ComplaintID}" class="border p-1.5 text-sm rounded outline-none"><input type="time" id="t-${c.ComplaintID}" class="border p-1.5 text-sm rounded outline-none"><button onclick="scheduleHearing(${c.ComplaintID})" class="bg-yellow-500 hover:bg-yellow-600 font-bold text-white py-1.5 rounded text-sm transition shadow-sm">برمجة موعد</button></div>`;
+                // إذا كانت قاعدة البيانات جديدة وفارغة
+                if (allComplaints.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center p-8 font-bold text-gray-500 bg-gray-50">🗂️ لا توجد أي ملفات مسجلة في قاعدة البيانات الجديدة حتى الآن.</td></tr>';
+                    return;
                 }
-                
-                if (role === 'legal') {
-                    if (c.Status === 'تسجيل أولي') {
-                        actions += `<div class="flex flex-col gap-2 w-full mb-2">
-                            ${!c.AIOpinion ? `<button onclick="getAIOpinion(${c.ComplaintID})" class="bg-purple-600 hover:bg-purple-700 font-bold text-white px-2 py-2 rounded-lg text-sm shadow transition"><i class="fas fa-robot ml-1"></i> استشارة AI</button>` : ''}
-                            <button onclick="addLegalOpinion(${c.ComplaintID})" class="bg-blue-600 hover:bg-blue-700 font-bold text-white px-2 py-2 rounded-lg text-sm shadow transition"><i class="fas fa-pen ml-1"></i> تسجيل الرأي</button>
-                        </div>`;
+
+                allComplaints.forEach(c => {
+                    // حماية الكود مهما كان اسم الـ ID في قاعدة البيانات
+                    const cID = c.ComplaintID || c.complaint_id || c.id || 1;
+                    const refNumber = `AM-${new Date().getFullYear()}-${cID.toString().padStart(4, '0')}`;
+                    
+                    // تلوين السطر أوتوماتيكياً (استعملنا دالة getDeadlineStatusClass)
+                    const createdDate = c.CreatedAt || c.created_at || new Date();
+                    const rowClass = (role === 'legal' && c.Status !== 'مقبولة' && c.Status !== 'مرفوضة') ? getDeadlineStatusClass(createdDate) : '';
+
+                    let details = `<div class="mb-3"><span class="text-xs font-mono font-bold bg-blue-100 text-blue-900 px-2 py-1 rounded shadow-sm"><i class="fas fa-hashtag"></i> ${refNumber}</span></div>`;
+                    details += `<p class="font-black text-lg text-gray-800 mb-1">${c.Title}</p><span class="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-1 rounded">${c.ComplaintType}</span><p class="text-sm mt-2 text-gray-600 leading-relaxed">${c.Description}</p>`;
+                    if(c.FilePath) details += `<br><a href="/${c.FilePath}" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold text-sm mt-2 inline-block"><i class="fas fa-paperclip"></i> تحميل المرفق</a>`;
+                    
+                    if(c.AIOpinion && (role === 'legal' || role === 'admin')) { details += `<div class="bg-purple-50 p-3 mt-3 text-sm border-r-4 border-purple-500 rounded-l shadow-sm">🤖 <b class="text-purple-900">الذكاء الاصطناعي:</b> <span class="text-gray-700">${c.AIOpinion}</span></div>`; }
+                    if(c.LegalOpinion && (role === 'legal' || role === 'admin')) { details += `<div class="bg-gray-100 p-3 mt-2 text-sm border-r-4 border-gray-600 rounded-l shadow-sm">✍️ <b class="text-gray-800">مصلحة النزاعات:</b> <span class="text-gray-700">${c.LegalOpinion}</span></div>`; }
+                    if(c.AdminDecision && (role === 'legal' || role === 'admin')) { details += `<div class="bg-green-50 p-3 mt-2 text-sm border-r-4 border-green-600 font-bold text-green-900 rounded-l shadow-sm">👨‍💼 قرار الإدارة العامة: ${c.AdminDecision}</div>`; }
+                    
+                    let statusInfo = `<span class="font-bold text-gray-800 bg-gray-100 px-3 py-1 rounded">${c.Status}</span>`;
+                    if(c.HearingDate) statusInfo += `<div class="mt-3 text-red-700 font-bold bg-red-50 p-2 text-sm text-center rounded border border-red-200"><i class="fas fa-calendar-alt"></i> موعد مبرمج:<br>${c.HearingDate.split('T')[0]} - ${c.HearingTime}</div>`;
+
+                    let actions = '';
+                    if (role === 'legal' && !c.HearingDate && (c.Status === 'تسجيل أولي' || c.Status === 'قيد دراسة المدير')) {
+                        actions += `<div class="flex flex-col gap-1.5 no-print mb-3 bg-white p-2 rounded border border-gray-200"><input type="date" id="d-${cID}" class="border p-1.5 text-sm rounded outline-none"><input type="time" id="t-${cID}" class="border p-1.5 text-sm rounded outline-none"><button onclick="scheduleHearing(${cID})" class="bg-yellow-500 hover:bg-yellow-600 font-bold text-white py-1.5 rounded text-sm transition shadow-sm">برمجة موعد</button></div>`;
                     }
-                    actions += `<button onclick="deleteComplaint(${c.ComplaintID})" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2 py-1.5 rounded-lg text-sm w-full mt-1 no-print transition"><i class="fas fa-trash ml-1"></i> حذف</button>`;
-                }
-                
-                if (role === 'admin') {
-                    actions += `
-                        <div class="flex flex-col gap-2 w-full mb-2">
-                            <button onclick="adminDecide(${c.ComplaintID}, 'مقبولة')" class="bg-green-600 hover:bg-green-700 font-bold text-white py-2 rounded-lg text-sm shadow transition"><i class="fas fa-check ml-1"></i> قبول وإضافة توجيه</button>
-                            <button onclick="adminDecide(${c.ComplaintID}, 'مرفوضة')" class="bg-red-600 hover:bg-red-700 font-bold text-white py-2 rounded-lg text-sm shadow transition"><i class="fas fa-times ml-1"></i> رفض وإضافة توجيه</button>
-                        </div>
-                    `;
-                }
+                    
+                    if (role === 'legal') {
+                        if (c.Status === 'تسجيل أولي') {
+                            actions += `<div class="flex flex-col gap-2 w-full mb-2">
+                                ${!c.AIOpinion ? `<button onclick="getAIOpinion(${cID})" class="bg-purple-600 hover:bg-purple-700 font-bold text-white px-2 py-2 rounded-lg text-sm shadow transition"><i class="fas fa-robot ml-1"></i> استشارة AI</button>` : ''}
+                                <button onclick="addLegalOpinion(${cID})" class="bg-blue-600 hover:bg-blue-700 font-bold text-white px-2 py-2 rounded-lg text-sm shadow transition"><i class="fas fa-pen ml-1"></i> تسجيل الرأي</button>
+                            </div>`;
+                        }
+                        actions += `<button onclick="deleteComplaint(${cID})" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2 py-1.5 rounded-lg text-sm w-full mt-1 no-print transition"><i class="fas fa-trash ml-1"></i> حذف</button>`;
+                    }
+                    
+                    if (role === 'admin') {
+                        actions += `
+                            <div class="flex flex-col gap-2 w-full mb-2">
+                                <button onclick="adminDecide(${cID}, 'مقبولة')" class="bg-green-600 hover:bg-green-700 font-bold text-white py-2 rounded-lg text-sm shadow transition"><i class="fas fa-check ml-1"></i> قبول وإضافة توجيه</button>
+                                <button onclick="adminDecide(${cID}, 'مرفوضة')" class="bg-red-600 hover:bg-red-700 font-bold text-white py-2 rounded-lg text-sm shadow transition"><i class="fas fa-times ml-1"></i> رفض وإضافة توجيه</button>
+                            </div>
+                        `;
+                    }
 
-                actions += `<button onclick="printReport(${c.ComplaintID})" class="bg-gray-700 hover:bg-gray-800 font-bold text-white px-2 py-2 rounded-lg text-sm w-full mt-2 no-print shadow transition"><i class="fas fa-print ml-1"></i> طباعة التقرير</button>`;
-                
-                // إضافة متغير rowClass هنا لسطر الجدول <tr>
-                tbody.innerHTML += `<tr class="border-b hover:bg-gray-50 ${rowClass}"><td class="p-4 align-top">${details}</td><td class="p-4 align-top text-center">${statusInfo}</td><td class="p-4 align-top no-print w-48">${actions || '<span class="text-gray-400 font-bold text-sm">لا يوجد إجراء</span>'}</td></tr>`;
-            });
+                    actions += `<button onclick="printReport(${cID})" class="bg-gray-700 hover:bg-gray-800 font-bold text-white px-2 py-2 rounded-lg text-sm w-full mt-2 no-print shadow transition"><i class="fas fa-print ml-1"></i> طباعة التقرير</button>`;
+                    
+                    tbody.innerHTML += `<tr class="border-b hover:bg-gray-50 ${rowClass}"><td class="p-4 align-top">${details}</td><td class="p-4 align-top text-center">${statusInfo}</td><td class="p-4 align-top no-print w-48">${actions || '<span class="text-gray-400 font-bold text-sm">لا يوجد إجراء</span>'}</td></tr>`;
+                });
+            } catch (error) {
+                console.error("Error loading complaints:", error);
+            }
         }
 
         async function submitComplaint(e) { e.preventDefault(); const u = JSON.parse(localStorage.getItem('user')); const fd = new FormData(e.target); fd.append('createdBy_FullName', u.fullName); fd.append('createdBy_Role', u.role); await fetch('/api/complaints', { method: 'POST', body: fd }); if(u.role !== 'reception') loadComplaints(); if(u.role === 'admin') loadStats(); e.target.reset(); alert('✅ تم تسجيل وإرسال الملف بنجاح!'); }
@@ -563,11 +576,12 @@
         async function adminDecide(id, st) { const dec = prompt(`أدخل توجيهات المدير العام (${st}):`); if(dec) { await fetch(`/api/complaints/${id}/admin`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({adminDecision: dec, status:st}) }); loadComplaints(); loadStats(); } }
         async function deleteComplaint(id) { if(confirm('هل أنت متأكد من حذف هذا الملف نهائياً؟')) { await fetch(`/api/complaints/${id}`, { method: 'DELETE' }); loadComplaints(); } }
 
-        // 5. تحديث دالة الطباعة (إظهار اللوغو، إخفاء الذكاء الاصطناعي)
+        // دالة الطباعة باللوغو وبدون الذكاء الاصطناعي
         function printReport(id) {
-            const c = allComplaints.find(x => x.ComplaintID === id);
-            const refNumber = `AM-${new Date().getFullYear()}-${c.ComplaintID.toString().padStart(4, '0')}`;
-            const securityCode = `CODE-${(c.ComplaintID * 1962).toString(16).toUpperCase()}`;
+            const c = allComplaints.find(x => (x.ComplaintID || x.complaint_id || x.id) === id);
+            const cID = c.ComplaintID || c.complaint_id || c.id || 1;
+            const refNumber = `AM-${new Date().getFullYear()}-${cID.toString().padStart(4, '0')}`;
+            const securityCode = `CODE-${(cID * 1962).toString(16).toUpperCase()}`;
             let legalOp = c.LegalOpinion;
             if (!legalOp && c.AdminDecision) { legalOp = 'لم يُسجل (تم الفصل من طرف الإدارة العامة مباشرة)'; } 
             else if (!legalOp) { legalOp = 'قيد الدراسة'; }
