@@ -3,30 +3,39 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs'); // مكتبة جديدة للتعامل مع الملفات والمجلدات
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname)); // لفتح واجهات HTML من نفس المجلد
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // لفتح الملفات المرفقة
+app.use(express.static(__dirname)); 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ==========================================
-// 1. الاتصال بقاعدة البيانات (نظام Pool لتفادي الانقطاع)
+// 0. إنشاء مجلد المرفقات أوتوماتيكياً لتفادي خطأ Render
+// ==========================================
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log('✅ تم إنشاء مجلد uploads بنجاح');
+}
+
+// ==========================================
+// 1. الاتصال بقاعدة البيانات 
 // ==========================================
 const db = mysql.createPool({
-    connectionLimit: 3, // يسمح بـ 10 اتصالات متزامنة
+    connectionLimit: 3, // تم التخفيض لتفادي بلوك Clever Cloud
     host: 'bdj70168ffojqcl967nx-mysql.services.clever-cloud.com',
-    user: 'urc79o1ctr3bctj4', 
-    password: 'lWO2Nxj2VAJxCZ7K2KIL', 
+    user: 'urc79olctr3bctj4', 
+    password: 'lWo2Nxj2VAJxcZ7K2KIL', 
     database: 'bdj70168ffojqcl967nx'
 });
 
-// اختبار الاتصال عند تشغيل السيرفر
 db.getConnection((err, connection) => {
-    if (err) console.error('خطأ في الاتصال بقاعدة البيانات:', err.code);
+    if (err) console.error('خطأ في الاتصال بقاعدة البيانات:', err.code, err.sqlMessage);
     else {
         console.log('✅ تم الاتصال بنجاح بقاعدة البيانات MySQL (نظام Pool)');
-        connection.release(); // تحرير الاتصال بعد الاختبار
+        connection.release();
     }
 });
 
@@ -93,12 +102,23 @@ app.delete('/api/users/:id', (req, res) => {
 app.get('/api/complaints', (req, res) => {
     db.query('SELECT * FROM Complaints ORDER BY ComplaintID DESC', (err, results) => res.json({ success: true, complaints: results || [] }));
 });
+
+// (تم تحديث هذه الدالة لإرجاع الخطأ الحقيقي)
 app.post('/api/complaints', upload.single('file'), (req, res) => {
     const { title, complaintType, description, createdBy_FullName, createdBy_Role } = req.body;
     const filePath = req.file ? 'uploads/' + req.file.filename : null;
+    
     db.query('INSERT INTO Complaints (Title, ComplaintType, Description, FilePath, CreatedBy_FullName, CreatedBy_Role) VALUES (?, ?, ?, ?, ?, ?)', 
-    [title, complaintType, description, filePath, createdBy_FullName, createdBy_Role], err => res.json({ success: !err }));
+    [title, complaintType, description, filePath, createdBy_FullName, createdBy_Role], 
+    (err, results) => {
+        if (err) {
+            console.error('Database Error Insert Complaint:', err.sqlMessage);
+            return res.status(500).json({ success: false, error: err.sqlMessage || err.message });
+        }
+        res.json({ success: true });
+    });
 });
+
 app.delete('/api/complaints/:id', (req, res) => {
     db.query('DELETE FROM Complaints WHERE ComplaintID = ?', [req.params.id], err => res.json({ success: !err }));
 });
@@ -179,7 +199,11 @@ app.post('/api/contracts', upload.single('file'), (req, res) => {
     const { employeeName, contractType, lawyerId, createdBy } = req.body;
     const filePath = req.file ? 'uploads/' + req.file.filename : '';
     db.query('INSERT INTO Contracts (EmployeeName, ContractType, FilePath, LawyerID, CreatedBy_FullName) VALUES (?, ?, ?, ?, ?)',
-    [employeeName, contractType, filePath, lawyerId, createdBy], err => res.json({ success: !err }));
+    [employeeName, contractType, filePath, lawyerId, createdBy], 
+    (err) => {
+        if (err) return res.status(500).json({ success: false, error: err.sqlMessage });
+        res.json({ success: true });
+    });
 });
 
 // --- القوانين ---
@@ -224,7 +248,7 @@ app.put('/api/warnings/:id/admin', (req, res) => {
 });
 
 // ==========================================
-// تشغيل السيرفر (حل مشكل منصة Render)
+// تشغيل السيرفر 
 // ==========================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
