@@ -13,8 +13,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // لفت�
 // 1. الاتصال بقاعدة البيانات
 const db = mysql.createConnection({
     host: 'bdj70168ffojqcl967nx-mysql.services.clever-cloud.com',
-    user: 'urc79olctr3bctj4', // افتراضي في XAMPP
-    password: 'lWo2Nxj2VAJxcZ7K2KIL', // افتراضي بدون كلمة مرور
+    user: 'urc79olctr3bctj4', 
+    password: 'lWo2Nxj2VAJxcZ7K2KIL', 
     database: 'bdj70168ffojqcl967nx'
 });
 
@@ -92,6 +92,7 @@ app.post('/api/complaints', upload.single('file'), (req, res) => {
 app.delete('/api/complaints/:id', (req, res) => {
     db.query('DELETE FROM Complaints WHERE ComplaintID = ?', [req.params.id], err => res.json({ success: !err }));
 });
+
 // برمجة الجلسة (الاستماع)
 app.put('/api/complaints/:id/schedule', (req, res) => {
     db.query('UPDATE Complaints SET HearingDate = ?, HearingTime = ? WHERE ComplaintID = ?', [req.body.date, req.body.time, req.params.id], err => res.json({ success: !err }));
@@ -107,6 +108,46 @@ app.put('/api/complaints/:id/admin', (req, res) => {
 // الذكاء الاصطناعي
 app.put('/api/complaints/:id/ai', (req, res) => {
     db.query('UPDATE Complaints SET AIOpinion = "بناءً على المعطيات، يُنصح بالرجوع إلى المادة 42 من النظام الداخلي للمؤسسة المتعلقة بالنزاعات، وإجراء جلسة صلح بين الأطراف كخطوة أولى." WHERE ComplaintID = ?', [req.params.id], err => res.json({ success: !err }));
+});
+
+// ==========================================
+// إضافات معايير الأيزو (ISO) الخاصة بالمدير
+// ==========================================
+
+// 1. تسجيل قراءة الشكوى وبدء مهلة 7 أيام
+app.put('/api/complaints/:id/read', (req, res) => {
+    const query = `UPDATE Complaints SET IsRead = TRUE, ViewedAt = CURRENT_TIMESTAMP, Deadline = DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 7 DAY) WHERE ComplaintID = ?`;
+    db.query(query, [req.params.id], err => res.json({ success: !err }));
+});
+
+// 2. تحديث مراحل القضية (للمدير)
+app.put('/api/complaints/:id/stage', (req, res) => {
+    db.query('UPDATE Complaints SET CurrentStage = ? WHERE ComplaintID = ?', [req.body.stage, req.params.id], err => res.json({ success: !err }));
+});
+
+// 3. تحويل القضية وتمديد 7 أيام أخرى
+app.put('/api/complaints/:id/reassign', (req, res) => {
+    const { newAssignee, previousOutcomes } = req.body;
+    const query = `UPDATE Complaints 
+                   SET AssignedTo = ?, 
+                       PreviousOutcomes = CONCAT(IFNULL(PreviousOutcomes, ''), '\n--- حيثيات سابقة ---\n', ?), 
+                       Deadline = DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 7 DAY) 
+                   WHERE ComplaintID = ?`;
+    db.query(query, [newAssignee, previousOutcomes, req.params.id], err => res.json({ success: !err }));
+});
+
+// 4. زر النسخ الاحتياطي (SAUVEGARDE)
+app.get('/api/backup', (req, res) => {
+    db.query('SELECT * FROM Complaints', (err, complaints) => {
+        if (err) return res.status(500).json({ success: false });
+        const backupData = {
+            date_sauvegarde: new Date(),
+            donnees: complaints
+        };
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', 'attachment; filename="Sauvegarde_CadetsMitidja.json"');
+        res.send(JSON.stringify(backupData, null, 2));
+    });
 });
 
 // --- إدارة المحامين والعقود ---
@@ -174,8 +215,9 @@ app.put('/api/warnings/:id/admin', (req, res) => {
     db.query('UPDATE Warnings SET AdminDecision = ?, Status = "مؤكد" WHERE WarningID = ?', [req.body.decision, req.params.id], err => res.json({ success: !err }));
 });
 
-
-// تشغيل السيرفر
+// ==========================================
+// تشغيل السيرفر (حل مشكل منصة Render)
+// ==========================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ السيرفر شغال بنجاح على المنفذ ${PORT}`);
