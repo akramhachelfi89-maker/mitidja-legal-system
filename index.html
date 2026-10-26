@@ -86,7 +86,6 @@
             <header id="topbar" class="bg-white shadow px-6 py-4 flex justify-between items-center z-10">
                 <h2 id="page-title" class="text-xl font-bold text-gray-800">الرئيسية</h2>
                 <div class="flex items-center gap-4">
-                    <!-- زر Sauvegarde -->
                     <button onclick="backupDatabase()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
                         <i class="fas fa-database"></i> Sauvegarde
                     </button>
@@ -269,9 +268,9 @@
             const diffTime = createdDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            if (diffDays < 0) return 'status-danger';    // أحمر (فات الأجل)
-            if (diffDays <= 2) return 'status-warning';  // أصفر (يومين أو أقل)
-            return 'status-safe';                        // أخضر (في الآجال)
+            if (diffDays < 0) return 'status-danger';    
+            if (diffDays <= 2) return 'status-warning';  
+            return 'status-safe';                        
         }
 
         // دالة زر Backup
@@ -313,7 +312,7 @@
                             <p class="text-gray-700 leading-relaxed whitespace-pre-wrap law-text text-sm font-medium">${l.Content}</p>
                         </div>`;
                 });
-            } catch(e) { console.error('خطأ في جلب القوانين'); }
+            } catch(e) {}
         }
 
         function searchPublicLaws() {
@@ -410,7 +409,6 @@
         
         function searchTable() { let input = document.getElementById("searchInput").value.toUpperCase(); let tr = document.getElementById("complaintsTable").getElementsByTagName("tr"); for (let i = 1; i < tr.length; i++) { let td = tr[i].getElementsByTagName("td")[0]; if (td) tr[i].style.display = (td.textContent || td.innerText).toUpperCase().indexOf(input) > -1 ? "" : "none"; } }
 
-        // نظام الإشعارات والتنبيهات
         async function checkNotifications() {
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user || user.role === 'reception') return;
@@ -440,7 +438,6 @@
         // ==========================================
         // الاستفسارات والإنذارات
         // ==========================================
-
         async function loadInquiries() {
             const res = await fetch('/api/inquiries'); const data = await res.json();
             const role = JSON.parse(localStorage.getItem('user')).role;
@@ -456,19 +453,15 @@
                 tbody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-4 align-top font-bold text-gray-800">${i.Title}<br><span class="text-gray-500 font-normal text-sm block mt-1 mb-2">${i.Content}</span>${adminSection}</td><td class="p-4 align-top">${i.CreatedBy}</td><td class="p-4 align-top text-left" dir="ltr">${new Date(i.CreatedAt).toLocaleDateString('ar-DZ')}<br>${btn}</td></tr>`; 
             });
         }
-
         async function submitInquiry(e) {
             e.preventDefault(); const u = JSON.parse(localStorage.getItem('user'));
             await fetch('/api/inquiries', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({title: document.getElementById('inq-title').value, content: document.getElementById('inq-content').value, createdBy: u.fullName}) });
             e.target.reset(); loadInquiries(); alert('✅ تم تسجيل الاستفسار');
         }
-
         async function replyInquiry(id) {
             const rep = prompt('أدخل ردك أو توجيهك للموظف:');
             if(rep) { await fetch(`/api/inquiries/${id}/admin`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({reply: rep}) }); loadInquiries(); }
         }
-
-        // --- الإنذارات ---
         async function loadWarnings() {
             const res = await fetch('/api/warnings'); const data = await res.json();
             const role = JSON.parse(localStorage.getItem('user')).role;
@@ -484,22 +477,19 @@
                 tbody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-4 align-top font-black text-red-700">${w.EmployeeName}</td><td class="p-4 align-top"><span class="text-gray-800">${w.Reason}</span><br>${adminSection}</td><td class="p-4 align-top text-left" dir="ltr">${new Date(w.CreatedAt).toLocaleDateString('ar-DZ')}<br>${btn}</td></tr>`; 
             });
         }
-
         async function submitWarning(e) {
             e.preventDefault(); const u = JSON.parse(localStorage.getItem('user'));
             await fetch('/api/warnings', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({employeeName: document.getElementById('warn-emp').value, reason: document.getElementById('warn-reason').value, createdBy: u.fullName}) });
             e.target.reset(); loadWarnings(); alert('✅ تم تسجيل الإنذار');
         }
-
         async function decideWarning(id) {
             const dec = prompt('أدخل قرارك بخصوص هذا الإنذار (مثال: تأكيد الإنذار، توقيف...):');
             if(dec) { await fetch(`/api/warnings/${id}/admin`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({decision: dec}) }); loadWarnings(); }
         }
 
         // ==========================================
-        // الشكاوى والنزاعات (النسخة المحدثة)
+        // الشكاوى والنزاعات (مع إضافات الأيزو للمدير)
         // ==========================================
-
         async function loadComplaints() {
             try {
                 const res = await fetch('/api/complaints'); 
@@ -510,9 +500,8 @@
                 if(!tbody) return; 
                 tbody.innerHTML = '';
                 
-                // إذا كانت قاعدة البيانات جديدة وفارغة
                 if (allComplaints.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="text-center p-8 font-bold text-gray-500 bg-gray-50">🗂️ لا توجد أي ملفات مسجلة في قاعدة البيانات الجديدة حتى الآن.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center p-8 font-bold text-gray-500 bg-gray-50">🗂️ لا توجد أي ملفات مسجلة حتى الآن.</td></tr>';
                     return;
                 }
 
@@ -520,12 +509,19 @@
                     const cID = c.ComplaintID || c.complaint_id || c.id || 1;
                     const refNumber = `AM-${new Date().getFullYear()}-${cID.toString().padStart(4, '0')}`;
                     const createdDate = c.CreatedAt || c.created_at || new Date();
+                    
+                    // لون الأجل
                     const rowClass = (role === 'legal' && c.Status !== 'مقبولة' && c.Status !== 'مرفوضة') ? getDeadlineStatusClass(createdDate) : '';
 
                     let details = `<div class="mb-3"><span class="text-xs font-mono font-bold bg-blue-100 text-blue-900 px-2 py-1 rounded shadow-sm"><i class="fas fa-hashtag"></i> ${refNumber}</span></div>`;
                     details += `<p class="font-black text-lg text-gray-800 mb-1">${c.Title}</p><span class="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-1 rounded">${c.ComplaintType}</span><p class="text-sm mt-2 text-gray-600 leading-relaxed">${c.Description}</p>`;
                     if(c.FilePath) details += `<br><a href="/${c.FilePath}" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold text-sm mt-2 inline-block"><i class="fas fa-paperclip"></i> تحميل المرفق</a>`;
                     
+                    // إضافات عرض الأيزو
+                    if(c.CurrentStage) { details += `<div class="bg-blue-50 p-2 mt-3 text-sm border-r-4 border-blue-500 rounded-l shadow-sm">📊 <b class="text-blue-900">مرحلة المعالجة:</b> <span class="text-gray-700">${c.CurrentStage}</span></div>`; }
+                    if(c.AssignedTo) { details += `<div class="bg-indigo-50 p-2 mt-2 text-sm border-r-4 border-indigo-500 rounded-l shadow-sm">🔄 <b class="text-indigo-900">محول إلى:</b> <span class="text-gray-700">${c.AssignedTo}</span></div>`; }
+                    if(c.PreviousOutcomes) { details += `<div class="bg-yellow-50 p-2 mt-2 text-xs border-r-4 border-yellow-500 rounded-l shadow-sm text-gray-600" style="white-space: pre-wrap;">${c.PreviousOutcomes}</div>`; }
+
                     if(c.AIOpinion && (role === 'legal' || role === 'admin')) { details += `<div class="bg-purple-50 p-3 mt-3 text-sm border-r-4 border-purple-500 rounded-l shadow-sm">🤖 <b class="text-purple-900">الذكاء الاصطناعي:</b> <span class="text-gray-700">${c.AIOpinion}</span></div>`; }
                     if(c.LegalOpinion && (role === 'legal' || role === 'admin')) { details += `<div class="bg-gray-100 p-3 mt-2 text-sm border-r-4 border-gray-600 rounded-l shadow-sm">✍️ <b class="text-gray-800">مصلحة النزاعات:</b> <span class="text-gray-700">${c.LegalOpinion}</span></div>`; }
                     if(c.AdminDecision && (role === 'legal' || role === 'admin')) { details += `<div class="bg-green-50 p-3 mt-2 text-sm border-r-4 border-green-600 font-bold text-green-900 rounded-l shadow-sm">👨‍💼 قرار الإدارة العامة: ${c.AdminDecision}</div>`; }
@@ -549,10 +545,14 @@
                     }
                     
                     if (role === 'admin') {
+                        // تمت إضافة أزرار الأيزو (تحديث المرحلة وتحويل الملف)
                         actions += `
                             <div class="flex flex-col gap-2 w-full mb-2">
                                 <button onclick="adminDecide(${cID}, 'مقبولة')" class="bg-green-600 hover:bg-green-700 font-bold text-white py-2 rounded-lg text-sm shadow transition"><i class="fas fa-check ml-1"></i> قبول وإضافة توجيه</button>
                                 <button onclick="adminDecide(${cID}, 'مرفوضة')" class="bg-red-600 hover:bg-red-700 font-bold text-white py-2 rounded-lg text-sm shadow transition"><i class="fas fa-times ml-1"></i> رفض وإضافة توجيه</button>
+                                
+                                <button onclick="changeStage(${cID})" class="bg-blue-500 hover:bg-blue-600 font-bold text-white py-2 rounded-lg text-sm shadow transition mt-1"><i class="fas fa-tasks ml-1"></i> تحديث المرحلة (ISO)</button>
+                                <button onclick="reassignComplaint(${cID})" class="bg-indigo-500 hover:bg-indigo-600 font-bold text-white py-2 rounded-lg text-sm shadow transition"><i class="fas fa-exchange-alt ml-1"></i> تحويل الملف (ISO)</button>
                             </div>
                         `;
                     }
@@ -566,7 +566,6 @@
             }
         }
 
-        // --- دالة الإرسال (النسخة الكاشفة للأخطاء المخفية) ---
         async function submitComplaint(e) { 
             e.preventDefault(); 
             const u = JSON.parse(localStorage.getItem('user')); 
@@ -576,15 +575,9 @@
             
             try {
                 const res = await fetch('/api/complaints', { method: 'POST', body: fd }); 
-                
                 const textResponse = await res.text();
-                
                 let data;
-                try { 
-                    data = JSON.parse(textResponse); 
-                } catch(e) { 
-                    data = { success: false, error: textResponse }; 
-                }
+                try { data = JSON.parse(textResponse); } catch(e) { data = { success: false, error: textResponse }; }
                 
                 if (res.ok && data.success !== false && !data.error && !data.sqlMessage) {
                     if(u.role !== 'reception') loadComplaints(); 
@@ -605,7 +598,27 @@
         async function adminDecide(id, st) { const dec = prompt(`أدخل توجيهات المدير العام (${st}):`); if(dec) { await fetch(`/api/complaints/${id}/admin`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({adminDecision: dec, status:st}) }); loadComplaints(); loadStats(); } }
         async function deleteComplaint(id) { if(confirm('هل أنت متأكد من حذف هذا الملف نهائياً؟')) { await fetch(`/api/complaints/${id}`, { method: 'DELETE' }); loadComplaints(); } }
 
-        // دالة الطباعة باللوغو وبدون الذكاء الاصطناعي
+        // ==========================================
+        // وظائف أزرار الأيزو (ISO)
+        // ==========================================
+        async function changeStage(id) {
+            const stage = prompt('أدخل المرحلة الحالية للملف (مثال: قيد التحقيق الداخلي، استدعاء الأطراف، في انتظار تقرير المفتشية):');
+            if(stage) { 
+                await fetch(`/api/complaints/${id}/stage`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({stage}) }); 
+                loadComplaints(); 
+            }
+        }
+
+        async function reassignComplaint(id) {
+            const newAssignee = prompt('إلى من تريد تحويل هذا الملف؟ (مثال: لجنة التأديب، مستشار خارجي، مفتشية العمل):');
+            if(newAssignee) {
+                const previousOutcomes = prompt('أضف ملاحظة أو حيثيات التحويل للملف (اختياري):') || 'بدون ملاحظات';
+                await fetch(`/api/complaints/${id}/reassign`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({newAssignee, previousOutcomes}) }); 
+                loadComplaints(); 
+            }
+        }
+
+        // دالة الطباعة 
         function printReport(id) {
             const c = allComplaints.find(x => (x.ComplaintID || x.complaint_id || x.id) === id);
             const cID = c.ComplaintID || c.complaint_id || c.id || 1;
