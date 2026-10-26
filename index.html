@@ -15,9 +15,9 @@
         .view-section.active { display: block; }
         
         /* ألوان الحالات والآجال */
-        .status-safe { background-color: #f0fdf4 !important; border-right: 4px solid #10b981 !important; }
-        .status-warning { background-color: #fffbeb !important; border-right: 4px solid #f59e0b !important; }
-        .status-danger { background-color: #fef2f2 !important; border-right: 4px solid #ef4444 !important; }
+        .status-safe { background-color: #f0fdf4 !important; border-right: 5px solid #10b981 !important; } /* أخضر: تم الحل */
+        .status-warning { background-color: #fffbeb !important; border-right: 5px solid #f97316 !important; } /* برتقالي: قيد المعالجة / مزالت */
+        .status-danger { background-color: #fef2f2 !important; border-right: 5px solid #ef4444 !important; } /* أحمر: تأخرت */
 
         @media print { 
             body { background-color: white; } 
@@ -32,52 +32,29 @@
     <div id="login-screen" class="flex h-screen bg-gray-100 overflow-hidden w-full">
         <div class="hidden md:flex flex-col w-2/3 bg-white p-8 overflow-y-auto shadow-inner relative">
             <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: url('logo1.jpeg'); background-size: contain; background-position: center; background-repeat: no-repeat;"></div>
-            
             <div class="relative z-10 mb-8 flex justify-between items-center border-b pb-4">
                 <h2 class="text-3xl font-black text-blue-900"><i class="fas fa-scale-balanced mr-2"></i> المرجع القانوني السريع</h2>
-                <div class="relative w-72">
-                    <input type="text" id="publicSearch" onkeyup="searchPublicLaws()" placeholder="ابحث في القوانين..." class="w-full px-4 py-2 border-2 border-blue-200 rounded-full focus:outline-none focus:border-blue-600 bg-gray-50">
-                    <i class="fas fa-search absolute left-4 top-3 text-gray-400"></i>
-                </div>
+                <div class="relative w-72"><input type="text" id="publicSearch" onkeyup="searchPublicLaws()" placeholder="ابحث في القوانين..." class="w-full px-4 py-2 border-2 border-blue-200 rounded-full focus:outline-none focus:border-blue-600 bg-gray-50"><i class="fas fa-search absolute left-4 top-3 text-gray-400"></i></div>
             </div>
-
-            <div id="public-laws-container" class="relative z-10 grid grid-cols-1 gap-6">
-                <p class="text-gray-500 text-center animate-pulse font-bold mt-10">جاري تحميل النصوص القانونية...</p>
-            </div>
+            <div id="public-laws-container" class="relative z-10 grid grid-cols-1 gap-6"><p class="text-gray-500 text-center animate-pulse font-bold mt-10">جاري تحميل النصوص...</p></div>
         </div>
-
         <div class="w-full md:w-1/3 bg-blue-900 text-white flex flex-col justify-center items-center p-8 shadow-2xl relative">
             <div class="bg-white text-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-sm relative z-10">
-                <div class="text-center mb-6">
-                    <img src="logo1.jpeg" class="w-20 h-20 mx-auto rounded-full border-4 border-gray-100 shadow-sm mb-3">
-                    <h1 class="text-2xl font-black text-blue-900">أشبال متيجة</h1>
-                    <p class="text-xs font-bold text-gray-500 mt-1">نظام إدارة الشؤون القانونية والمنازعات</p>
-                </div>
-                
+                <div class="text-center mb-6"><img src="logo1.jpeg" class="w-20 h-20 mx-auto rounded-full border-4 border-gray-100 shadow-sm mb-3"><h1 class="text-2xl font-black text-blue-900">أشبال متيجة</h1><p class="text-xs font-bold text-gray-500 mt-1">نظام إدارة الشؤون القانونية</p></div>
                 <form onsubmit="handleLogin(event)">
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2 text-gray-700">اسم المستخدم</label>
-                        <input type="text" id="username" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 bg-gray-50 text-left" dir="ltr" required>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-bold mb-2 text-gray-700">كلمة المرور</label>
-                        <input type="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 bg-gray-50 text-left" dir="ltr" required>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-lg transition shadow-md">
-                        دخول للنظام <i class="fas fa-arrow-left ml-2"></i>
-                    </button>
+                    <div class="mb-4"><label class="block text-sm font-bold mb-2 text-gray-700">اسم المستخدم</label><input type="text" id="username" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 bg-gray-50 text-left" dir="ltr" required></div>
+                    <div class="mb-6"><label class="block text-sm font-bold mb-2 text-gray-700">كلمة المرور</label><input type="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 bg-gray-50 text-left" dir="ltr" required></div>
+                    <button type="submit" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-lg transition shadow-md">دخول للنظام <i class="fas fa-arrow-left ml-2"></i></button>
                     <div id="login-error" class="hidden mt-4 bg-red-100 text-red-700 p-2 rounded text-sm text-center font-bold"></div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- لوحة التحكم (الرئيسية) -->
+    <!-- لوحة التحكم -->
     <div id="dashboard-screen" class="hidden flex h-screen overflow-hidden">
         <aside id="sidebar" class="w-64 bg-blue-900 text-white flex flex-col z-20">
-            <div class="p-4 text-center border-b border-blue-800">
-                <h3 class="font-bold text-lg">أشبال متيجة</h3><p id="user-role-display" class="text-sm mt-1 text-yellow-400 font-bold"></p>
-            </div>
+            <div class="p-4 text-center border-b border-blue-800"><h3 class="font-bold text-lg">أشبال متيجة</h3><p id="user-role-display" class="text-sm mt-1 text-yellow-400 font-bold"></p></div>
             <nav class="flex-1 p-4 space-y-2 overflow-y-auto" id="nav-links"></nav>
             <div class="p-4 border-t border-blue-800"><button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 font-bold text-white py-2 rounded transition">تسجيل الخروج</button></div>
         </aside>
@@ -86,20 +63,13 @@
             <header id="topbar" class="bg-white shadow px-6 py-4 flex justify-between items-center z-10">
                 <h2 id="page-title" class="text-xl font-bold text-gray-800">الرئيسية</h2>
                 <div class="flex items-center gap-4">
-                    <button onclick="backupDatabase()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
-                        <i class="fas fa-database"></i> Sauvegarde
-                    </button>
-
-                    <div id="notification-bell" class="relative cursor-pointer hidden text-gray-600 hover:text-blue-900 transition">
-                        <i class="fas fa-bell text-2xl"></i>
-                        <span id="notif-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow-lg hidden">0</span>
-                    </div>
+                    <button onclick="backupDatabase()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2"><i class="fas fa-database"></i> Sauvegarde</button>
+                    <div id="notification-bell" class="relative cursor-pointer hidden text-gray-600 hover:text-blue-900 transition"><i class="fas fa-bell text-2xl"></i><span id="notif-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow-lg hidden">0</span></div>
                     <div id="user-name-display" class="font-bold text-blue-900 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100"></div>
                 </div>
             </header>
 
             <div id="main-content" class="p-6 flex-1 overflow-y-auto bg-gray-50">
-                
                 <!-- الإحصائيات -->
                 <div id="view-dashboard" class="view-section mb-6">
                     <h3 class="text-lg font-bold mb-4"><i class="fas fa-chart-pie text-blue-600 ml-2"></i>الإحصائيات العامة</h3>
@@ -111,244 +81,49 @@
                     </div>
                 </div>
 
-                <!-- القوانين -->
-                <div id="view-laws" class="view-section bg-white p-6 rounded shadow mb-6">
-                    <h3 class="text-lg font-bold mb-4 border-b pb-2"><i class="fas fa-scale-balanced text-blue-600 ml-2"></i>تعديل المرجع القانوني</h3>
-                    <div id="laws-container" class="grid gap-4 md:grid-cols-3"></div>
-                </div>
-
-                <!-- تسجيل شكوى / نزاع -->
-                <div id="view-reception" class="view-section bg-white p-6 rounded shadow mb-6 border-t-4 border-blue-600">
-                    <h3 class="text-xl font-bold mb-6 border-b pb-3"><i class="fas fa-file-signature text-blue-600 ml-2"></i>تسجيل ملف / نزاع جديد</h3>
-                    <form onsubmit="submitComplaint(event)">
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">عنوان الملف *</label>
-                                <input type="text" name="title" placeholder="أدخل العنوان..." class="border-2 border-gray-200 p-2.5 rounded-lg w-full focus:border-blue-500 focus:outline-none" required>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">نوع التسجيل *</label>
-                                <select name="complaintType" class="border-2 border-gray-200 p-2.5 rounded-lg w-full focus:border-blue-500 focus:outline-none bg-gray-50">
-                                    <option>نزاع</option>
-                                    <option>نزاع فردي</option>
-                                    <option>نزاع جماعي</option>
-                                    <option>استشارة حول قانون العمل والتشريع</option>
-                                    <option>مطلب إداري</option>
-                                    <option>جلسة إنصات</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">التفاصيل والوقائع *</label>
-                            <textarea name="description" placeholder="اكتب التفاصيل هنا..." rows="4" class="w-full border-2 border-gray-200 p-3 rounded-lg focus:border-blue-500 focus:outline-none" required></textarea>
-                        </div>
-                        <div class="mb-6 w-1/2">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">المرفقات (اختياري)</label>
-                            <input type="file" name="file" class="w-full border-2 border-dashed border-gray-300 p-2 rounded-lg bg-gray-50">
-                        </div>
-                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-lg shadow-md transition"><i class="fas fa-paper-plane ml-2"></i>حفظ وإرسال التقرير</button>
-                    </form>
-                </div>
-
                 <!-- الأرشيف والملفات -->
                 <div id="view-complaints-list" class="view-section bg-white p-6 rounded shadow mb-6">
                     <div class="flex justify-between items-center mb-6 border-b pb-3">
-                        <h3 class="text-xl font-bold"><i class="fas fa-folder-open text-blue-600 ml-2"></i>دراسة الملفات والأرشيف</h3>
-                        <div class="relative">
-                            <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="ابحث برقم أو عنوان..." class="border-2 border-gray-200 p-2 rounded-lg w-64 text-sm bg-gray-50 no-print focus:border-blue-500 focus:outline-none pl-8">
-                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                        </div>
+                        <h3 class="text-xl font-bold"><i class="fas fa-folder-open text-blue-600 ml-2"></i>متابعة ودراسة الملفات</h3>
+                        <div class="relative"><input type="text" id="searchInput" onkeyup="searchTable()" placeholder="ابحث برقم أو عنوان..." class="border-2 border-gray-200 p-2 rounded-lg w-64 text-sm bg-gray-50 no-print focus:border-blue-500 focus:outline-none pl-8"><i class="fas fa-search absolute left-3 top-3 text-gray-400"></i></div>
                     </div>
                     <table class="w-full text-right border-collapse" id="complaintsTable">
-                        <thead><tr class="bg-gray-100 text-gray-700"><th class="border-b-2 border-gray-200 p-3 w-1/2 font-bold">تفاصيل الملف</th><th class="border-b-2 border-gray-200 p-3 font-bold">الحالة / الموعد</th><th class="border-b-2 border-gray-200 p-3 font-bold no-print text-center">الإجراءات</th></tr></thead>
+                        <thead><tr class="bg-gray-100 text-gray-700"><th class="border-b-2 border-gray-200 p-3 w-1/2 font-bold">تفاصيل الملف والمتابعة</th><th class="border-b-2 border-gray-200 p-3 font-bold text-center">الآجال والوقت</th><th class="border-b-2 border-gray-200 p-3 font-bold no-print text-center w-56">الإجراءات</th></tr></thead>
                         <tbody id="complaints-table-body"></tbody>
                     </table>
                 </div>
 
-                <!-- الاستفسارات -->
-                <div id="view-inquiries" class="view-section bg-white p-6 rounded shadow mb-6 border-t-4 border-yellow-500">
-                    <h3 class="text-xl font-bold mb-6 border-b pb-3"><i class="fas fa-question-circle text-yellow-500 ml-2"></i>إدارة الاستفسارات</h3>
-                    <form id="inquiry-form" onsubmit="submitInquiry(event)" class="mb-8 border border-gray-200 p-5 rounded-xl bg-gray-50">
-                        <input type="text" id="inq-title" placeholder="موضوع الاستفسار" class="w-full border p-2.5 rounded-lg mb-3 focus:border-yellow-500 outline-none" required>
-                        <textarea id="inq-content" placeholder="اكتب تفاصيل الاستفسار هنا..." rows="3" class="w-full border p-2.5 rounded-lg mb-3 focus:border-yellow-500 outline-none" required></textarea>
-                        <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 font-bold text-white px-6 py-2 rounded-lg transition shadow">تسجيل الاستفسار</button>
-                    </form>
-                    <table class="w-full text-right border-collapse shadow-sm mt-4">
-                        <thead><tr class="bg-gray-200 text-gray-700"><th class="p-3 border-b w-1/2">الموضوع</th><th class="p-3 border-b">المُسجل</th><th class="p-3 border-b">الإجراءات</th></tr></thead>
-                        <tbody id="inquiries-table-body" class="text-sm"></tbody>
-                    </table>
-                </div>
-
-                <!-- الإنذارات -->
-                <div id="view-warnings" class="view-section bg-white p-6 rounded shadow mb-6 border-t-4 border-red-600">
-                    <h3 class="text-xl font-bold mb-6 border-b pb-3"><i class="fas fa-exclamation-triangle text-red-600 ml-2"></i>إدارة الإنذارات</h3>
-                    <form id="warning-form" onsubmit="submitWarning(event)" class="mb-8 border border-gray-200 p-5 rounded-xl bg-gray-50">
-                        <input type="text" id="warn-emp" placeholder="اسم الموظف المعني" class="w-full border p-2.5 rounded-lg mb-3 focus:border-red-500 outline-none" required>
-                        <textarea id="warn-reason" placeholder="سبب الإنذار..." rows="3" class="w-full border p-2.5 rounded-lg mb-3 focus:border-red-500 outline-none" required></textarea>
-                        <button type="submit" class="bg-red-600 hover:bg-red-700 font-bold text-white px-6 py-2 rounded-lg transition shadow">تسجيل الإنذار</button>
-                    </form>
-                    <table class="w-full text-right border-collapse shadow-sm mt-4">
-                        <thead><tr class="bg-gray-200 text-gray-700"><th class="p-3 border-b w-1/4">الموظف</th><th class="p-3 border-b w-1/2">التفاصيل والقرار</th><th class="p-3 border-b">الإجراءات</th></tr></thead>
-                        <tbody id="warnings-table-body" class="text-sm"></tbody>
-                    </table>
-                </div>
-
-                <!-- العقود والمحامين -->
-                <div id="view-contracts" class="view-section bg-white p-6 rounded shadow mb-6">
-                    <h3 class="text-xl font-bold mb-6 border-b pb-3"><i class="fas fa-file-contract text-blue-600 ml-2"></i>إدارة العقود والمحامين</h3>
-                    
-                    <div class="mb-8 border border-gray-200 p-5 rounded-xl bg-gray-50 shadow-sm"><h4 class="font-bold mb-4 text-purple-800"><i class="fas fa-user-tie ml-1"></i> إضافة محامي معتمد</h4>
-                        <form onsubmit="submitLawyer(event)" class="grid grid-cols-4 gap-4">
-                            <input type="text" id="lawyer-name" placeholder="الاسم الكامل" class="border p-2.5 rounded-lg focus:border-purple-500 outline-none" required>
-                            <input type="email" id="lawyer-email" placeholder="البريد الإلكتروني" class="border p-2.5 rounded-lg focus:border-purple-500 outline-none text-left" dir="ltr">
-                            <input type="text" id="lawyer-phone" placeholder="رقم الهاتف" class="border p-2.5 rounded-lg focus:border-purple-500 outline-none" required>
-                            <button type="submit" class="bg-purple-600 hover:bg-purple-700 font-bold text-white px-4 rounded-lg transition shadow">حفظ المحامي</button>
-                        </form>
-                    </div>
-
-                    <div class="mb-8">
-                        <h4 class="font-bold mb-3 text-gray-700">قائمة المحامين المعتمدين</h4>
-                        <table class="w-full text-right border-collapse bg-white shadow-sm">
-                            <thead><tr class="bg-gray-200"><th class="p-3 border-b">الاسم</th><th class="p-3 border-b">الهاتف</th><th class="p-3 border-b">الإيميل</th><th class="p-3 border-b w-24 text-center">إجراء</th></tr></thead>
-                            <tbody id="lawyers-table-body" class="text-sm"></tbody>
-                        </table>
-                    </div>
-
-                    <div class="border border-gray-200 p-5 rounded-xl bg-gray-50 shadow-sm"><h4 class="font-bold mb-4 text-indigo-800"><i class="fas fa-file-signature ml-1"></i> تسجيل وإرسال عقد جديد</h4>
-                        <form onsubmit="submitContract(event)" class="grid grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-1">الطرف الثاني</label><input type="text" name="employeeName" placeholder="الاسم" class="border p-2.5 rounded-lg w-full outline-none focus:border-indigo-500" required></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-1">نوع العقد</label><select name="contractType" class="border p-2.5 rounded-lg w-full outline-none focus:border-indigo-500"><option>عقد عمل</option><option>عقد تموين</option></select></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-1">توجيه للمحامي</label><select name="lawyerId" id="lawyer-select" class="border p-2.5 rounded-lg w-full outline-none focus:border-indigo-500" required></select></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-1">ملف العقد (PDF)</label><input type="file" name="file" class="border p-2 rounded-lg w-full bg-white" required></div>
-                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 font-bold text-white py-3 rounded-lg col-span-2 mt-2 shadow transition"><i class="fas fa-envelope ml-2"></i>حفظ العقد وإرساله</button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- إدارة المستخدمين -->
-                <div id="view-users" class="view-section bg-white p-6 rounded shadow mb-6">
-                    <h3 class="text-xl font-bold mb-6 border-b pb-3"><i class="fas fa-users-cog text-blue-600 ml-2"></i>إدارة حسابات النظام</h3>
-                    <form onsubmit="addUser(event)" class="grid grid-cols-5 gap-4 mb-8 border border-gray-200 p-5 rounded-xl bg-gray-50 shadow-sm">
-                        <input type="text" id="u-name" placeholder="الاسم الكامل" class="border p-2.5 rounded-lg focus:border-gray-800 outline-none" required>
-                        <input type="text" id="u-user" placeholder="اسم المستخدم" class="border p-2.5 rounded-lg focus:border-gray-800 outline-none text-left" dir="ltr" required>
-                        <input type="password" id="u-pass" placeholder="كلمة المرور" class="border p-2.5 rounded-lg focus:border-gray-800 outline-none text-left" dir="ltr" required>
-                        <select id="u-role" class="border p-2.5 rounded-lg focus:border-gray-800 outline-none font-bold"><option value="reception">مصلحة الاستقبال</option><option value="legal">الشؤون القانونية</option><option value="admin">المدير العام</option></select>
-                        <button type="submit" class="bg-gray-800 hover:bg-black font-bold text-white rounded-lg shadow transition">إضافة مستخدم</button>
-                    </form>
-                    <table class="w-full text-right border-collapse shadow-sm">
-                        <thead><tr class="bg-gray-200 text-gray-700"><th class="p-3 border-b font-bold">الاسم</th><th class="p-3 border-b font-bold">المستخدم</th><th class="p-3 border-b font-bold">الصلاحية</th><th class="p-3 border-b font-bold text-center">إجراء</th></tr></thead>
-                        <tbody id="users-table-body" class="text-sm"></tbody>
-                    </table>
-                </div>
-
+                <!-- باقي الأقسام -->
+                <div id="view-reception" class="view-section bg-white p-6 rounded shadow mb-6 border-t-4 border-blue-600"><h3 class="text-xl font-bold mb-6 border-b pb-3"><i class="fas fa-file-signature text-blue-600 ml-2"></i>تسجيل ملف / نزاع جديد</h3><form onsubmit="submitComplaint(event)"><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm font-bold text-gray-700 mb-2">عنوان الملف *</label><input type="text" name="title" class="border-2 p-2.5 rounded-lg w-full" required></div><div><label class="block text-sm font-bold text-gray-700 mb-2">نوع التسجيل *</label><select name="complaintType" class="border-2 p-2.5 rounded-lg w-full"><option>نزاع</option><option>نزاع فردي</option><option>استشارة</option></select></div></div><div class="mb-4"><label class="block text-sm font-bold text-gray-700 mb-2">التفاصيل *</label><textarea name="description" rows="4" class="w-full border-2 p-3 rounded-lg" required></textarea></div><div class="mb-6 w-1/2"><label class="block text-sm font-bold text-gray-700 mb-2">المرفقات</label><input type="file" name="file" class="w-full border-2 border-dashed p-2 rounded-lg"></div><button type="submit" class="bg-green-600 text-white font-bold px-8 py-3 rounded-lg"><i class="fas fa-paper-plane ml-2"></i>حفظ وإرسال</button></form></div>
+                <div id="view-laws" class="view-section bg-white p-6 rounded shadow mb-6"><div id="laws-container" class="grid gap-4 md:grid-cols-3"></div></div>
+                <div id="view-users" class="view-section bg-white p-6 rounded shadow mb-6"><form onsubmit="addUser(event)" class="grid grid-cols-5 gap-4 mb-8"><input type="text" id="u-name" placeholder="الاسم" class="border p-2" required><input type="text" id="u-user" placeholder="اليوزر" class="border p-2" required><input type="password" id="u-pass" placeholder="كلمة المرور" class="border p-2" required><select id="u-role" class="border p-2"><option value="legal">الشؤون القانونية</option><option value="admin">المدير العام</option></select><button type="submit" class="bg-gray-800 text-white rounded">إضافة</button></form><table class="w-full text-right"><tbody id="users-table-body"></tbody></table></div>
             </div>
         </main>
-    </div>
-
-    <!-- نافذة الإشعارات المنبثقة -->
-    <div id="toast-notification" class="fixed bottom-5 right-5 bg-blue-900 text-white px-6 py-4 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-50 flex items-center gap-3 border-l-4 border-red-500">
-        <i class="fas fa-exclamation-circle text-3xl text-red-400"></i>
-        <div>
-            <h4 class="font-bold text-sm">تنبيه نظام جديد!</h4>
-            <p class="text-xs text-blue-100">تم تسجيل ملف/نزاع جديد في النظام للتو.</p>
-        </div>
     </div>
 
     <script>
         const roleNames = { 'admin': 'المدير العام', 'reception': 'مصلحة الاستقبال', 'legal': 'الشؤون القانونية' };
         let allComplaints = []; 
-        let lastNotifCount = 0; 
 
-        // دالة حساب الآجال للون
-        function getDeadlineStatusClass(dateString) {
-            if (!dateString) return '';
-            const today = new Date();
-            const createdDate = new Date(dateString);
-            createdDate.setDate(createdDate.getDate() + 7);
-            const diffTime = createdDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diffDays < 0) return 'status-danger';    
-            if (diffDays <= 2) return 'status-warning';  
-            return 'status-safe';                        
-        }
-
-        // دالة زر Backup
-        async function backupDatabase() {
-            try {
-                alert('جاري تجهيز النسخة الاحتياطية... يرجى الانتظار.');
-                const response = await fetch('/api/backup', { method: 'GET' });
-                
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `Backup_Cadets_Mitidja_${new Date().toISOString().slice(0,10)}.sql`;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                } else {
-                    alert('❌ النسخ الاحتياطي غير متوفر حالياً على هذا السيرفر.');
-                }
-            } catch (error) {
-                alert('❌ خطأ في الاتصال أثناء محاولة النسخ.');
+        function getRowColorClass(c) {
+            if (c.Status === 'تم الحل' || c.Status === 'محولة إداريا') return 'status-safe'; 
+            if (c.Deadline) {
+                const now = new Date();
+                const deadline = new Date(c.Deadline);
+                if (now > deadline && c.Status !== 'تم الحل') return 'status-danger'; 
             }
+            if (c.IsRead && c.Status !== 'تم الحل') return 'status-warning'; 
+            return ''; 
         }
 
-        // جلب القوانين
-        async function loadPublicLaws() {
-            try {
-                const res = await fetch('/api/laws');
-                const data = await res.json();
-                const container = document.getElementById('public-laws-container');
-                container.innerHTML = '';
-                const titles = { 'SchoolUpdates': 'تحديثات المدرسة', 'InstitutionLaw': 'قانون المؤسسة', 'MinistryLaw': 'قانون الوزارة' };
-                
-                data.laws.forEach(l => {
-                    container.innerHTML += `
-                        <div class="law-card bg-white p-6 rounded-xl border border-gray-100 shadow-md hover:shadow-lg transition">
-                            <h3 class="font-bold text-xl text-blue-900 mb-3 border-b pb-2"><i class="fas fa-gavel ml-1 text-gray-400"></i> ${titles[l.LawType] || l.LawType}</h3>
-                            <p class="text-gray-700 leading-relaxed whitespace-pre-wrap law-text text-sm font-medium">${l.Content}</p>
-                        </div>`;
-                });
-            } catch(e) {}
-        }
-
-        function searchPublicLaws() {
-            let input = document.getElementById("publicSearch").value.toLowerCase();
-            let cards = document.getElementsByClassName("law-card");
-            for (let i = 0; i < cards.length; i++) {
-                let text = cards[i].querySelector(".law-text").innerText.toLowerCase();
-                cards[i].style.display = text.includes(input) ? "" : "none";
-            }
-        }
-
-        // تسجيل الدخول
         async function handleLogin(e) {
             e.preventDefault(); 
             const userVal = document.getElementById('username').value;
             const passVal = document.getElementById('password').value;
-            
-            try {
-                const res = await fetch('/api/login', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ username: userVal, password: passVal }) 
-                });
-                const data = await res.json();
-                
-                if (data.success) { 
-                    localStorage.setItem('user', JSON.stringify(data.user)); 
-                    initDashboard(); 
-                } else { 
-                    const errDiv = document.getElementById('login-error');
-                    errDiv.textContent = data.message; 
-                    errDiv.classList.remove('hidden'); 
-                }
-            } catch (err) {
-                alert('❌ خطأ في الاتصال!');
-            }
+            const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: userVal, password: passVal }) });
+            const data = await res.json();
+            if (data.success) { localStorage.setItem('user', JSON.stringify(data.user)); initDashboard(); } 
+            else { document.getElementById('login-error').textContent = data.message; document.getElementById('login-error').classList.remove('hidden'); }
         }
 
         function initDashboard() {
@@ -362,28 +137,20 @@
             const addLink = (text, views, icon) => { nav.innerHTML += `<button onclick="showViews('${views}', '${text}')" class="w-full text-right py-3 px-4 rounded-lg hover:bg-blue-800 mb-1.5 flex items-center gap-2 font-bold transition"><i class="fas ${icon} w-5 text-blue-300"></i> ${text}</button>`; };
 
             if (user.role === 'reception') {
-                addLink('تسجيل نزاع / ملف', 'view-reception', 'fa-pen-to-square'); 
-                addLink('المرجع القانوني', 'view-laws', 'fa-scale-balanced'); 
-                showViews('view-reception', 'تسجيل ملف / نزاع جديد'); 
+                addLink('تسجيل نزاع', 'view-reception', 'fa-pen-to-square'); 
+                showViews('view-reception', 'تسجيل ملف جديد'); 
             } else if (user.role === 'legal') {
-                addLink('تسجيل نزاع / ملف', 'view-reception', 'fa-pen-to-square'); 
+                addLink('تسجيل نزاع', 'view-reception', 'fa-pen-to-square'); 
                 addLink('دراسة الملفات', 'view-complaints-list', 'fa-gavel'); 
-                addLink('الاستفسارات', 'view-inquiries', 'fa-question-circle');
-                addLink('الإنذارات', 'view-warnings', 'fa-exclamation-triangle');
                 addLink('تعديل القوانين', 'view-laws', 'fa-scale-balanced'); 
-                addLink('إدارة العقود', 'view-contracts', 'fa-file-contract'); 
-                showViews('view-complaints-list', 'دراسة الملفات والأرشيف');
+                showViews('view-complaints-list', 'متابعة ودراسة الملفات');
             } else if (user.role === 'admin') {
                 addLink('المؤشرات', 'view-dashboard', 'fa-chart-pie'); 
-                addLink('القرارات النهائية', 'view-complaints-list', 'fa-check-double'); 
-                addLink('الاستفسارات', 'view-inquiries', 'fa-question-circle');
-                addLink('الإنذارات', 'view-warnings', 'fa-exclamation-triangle');
+                addLink('القرارات والمتابعة', 'view-complaints-list', 'fa-check-double'); 
                 addLink('الحسابات', 'view-users', 'fa-users-cog'); 
-                addLink('تعديل القوانين', 'view-laws', 'fa-scale-balanced'); 
-                showViews('view-dashboard', 'لوحة المؤشرات');
+                showViews('view-complaints-list', 'متابعة الملفات وقرارات المدير');
             }
             loadAllData(user.role);
-            checkNotifications(); 
         }
 
         function showViews(viewIds, title) { document.getElementById('page-title').textContent = title; document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active')); viewIds.split(',').forEach(id => {const el = document.getElementById(id); if(el) el.classList.add('active');}); }
@@ -391,105 +158,9 @@
         async function loadAllData(role) { 
             loadLaws(); 
             if(role !== 'reception') loadComplaints(); 
-            if(role === 'legal' || role === 'admin') {
-                loadInquiries();
-                loadWarnings();
-            }
-            if(role === 'legal') loadLawyers(); 
             if(role === 'admin') { loadStats(); loadUsers(); } 
         }
 
-        async function loadStats() { const res = await fetch('/api/stats'); const data = await res.json(); if(data.success) { document.getElementById('stat-total').textContent = data.stats.total; document.getElementById('stat-accepted').textContent = data.stats.accepted || 0; document.getElementById('stat-rejected').textContent = data.stats.rejected || 0; document.getElementById('stat-pending').textContent = data.stats.pending || 0; } }
-        async function loadUsers() { const res = await fetch('/api/users'); const data = await res.json(); const tbody = document.getElementById('users-table-body'); tbody.innerHTML = ''; data.users.forEach(u => { tbody.innerHTML += `<tr class="border-b"><td class="p-3 font-bold">${u.FullName}</td><td class="p-3 text-gray-500" dir="ltr">${u.Username}</td><td class="p-3"><span class="bg-gray-100 px-2 py-1 rounded text-xs font-bold text-gray-700">${roleNames[u.Role]}</span></td><td class="p-3 text-center"><button onclick="deleteUser(${u.UserID})" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded text-xs font-bold transition"><i class="fas fa-trash"></i></button></td></tr>`; }); }
-        async function addUser(e) { e.preventDefault(); await fetch('/api/users', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({fullName: document.getElementById('u-name').value, username: document.getElementById('u-user').value, password: document.getElementById('u-pass').value, role: document.getElementById('u-role').value}) }); loadUsers(); e.target.reset(); }
-        async function deleteUser(id) { if(confirm('متأكد من حذف الحساب؟')) { await fetch(`/api/users/${id}`, {method:'DELETE'}); loadUsers(); } }
-        
-        async function loadLaws() { const res = await fetch('/api/laws'); const data = await res.json(); const role = JSON.parse(localStorage.getItem('user')).role; let html = ''; const titles = { 'SchoolUpdates': 'تحديثات المدرسة', 'InstitutionLaw': 'قانون المؤسسة', 'MinistryLaw': 'قانون الوزارة' }; data.laws.forEach(l => { const isEditable = (role === 'legal' || role === 'admin') ? `onblur="updateLaw('${l.LawType}', this.value)" class="w-full border-2 border-gray-200 focus:border-blue-500 outline-none p-3 rounded-lg bg-white"` : `class="w-full border p-3 rounded-lg bg-gray-50" readonly`; html += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm"><label class="font-bold text-blue-900 block mb-3"><i class="fas fa-pen-nib ml-1"></i> ${titles[l.LawType]}</label><textarea rows="5" ${isEditable}>${l.Content}</textarea></div>`; }); document.getElementById('laws-container').innerHTML = html; }
-        async function updateLaw(type, content) { await fetch('/api/laws', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({type, content}) }); }
-        
-        function searchTable() { let input = document.getElementById("searchInput").value.toUpperCase(); let tr = document.getElementById("complaintsTable").getElementsByTagName("tr"); for (let i = 1; i < tr.length; i++) { let td = tr[i].getElementsByTagName("td")[0]; if (td) tr[i].style.display = (td.textContent || td.innerText).toUpperCase().indexOf(input) > -1 ? "" : "none"; } }
-
-        async function checkNotifications() {
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (!user || user.role === 'reception') return;
-            
-            document.getElementById('notification-bell').classList.remove('hidden');
-
-            try {
-                const res = await fetch('/api/notifications/count');
-                const data = await res.json();
-                
-                if (data.count > lastNotifCount && lastNotifCount !== 0) {
-                    const toast = document.getElementById('toast-notification');
-                    toast.classList.remove('translate-y-24', 'opacity-0');
-                    setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 5000);
-                    loadComplaints();
-                    if(user.role === 'admin') loadStats();
-                }
-                
-                lastNotifCount = data.count;
-                const badge = document.getElementById('notif-count');
-                badge.textContent = data.count;
-                if(data.count === 0) badge.classList.add('hidden'); else badge.classList.remove('hidden');
-            } catch(e) {}
-        }
-        setInterval(checkNotifications, 10000); 
-
-        // ==========================================
-        // الاستفسارات والإنذارات
-        // ==========================================
-        async function loadInquiries() {
-            const res = await fetch('/api/inquiries'); const data = await res.json();
-            const role = JSON.parse(localStorage.getItem('user')).role;
-            const tbody = document.getElementById('inquiries-table-body'); if(!tbody) return; tbody.innerHTML = '';
-            
-            const form = document.getElementById('inquiry-form');
-            if(form) form.style.display = (role === 'admin') ? 'none' : 'block';
-
-            data.inquiries.forEach(i => { 
-                let adminSection = i.AdminReply ? `<div class="mt-2 p-2 bg-green-50 border-r-4 border-green-500 text-green-900 text-sm font-bold shadow-sm">👨‍💼 توجيه المدير: ${i.AdminReply}</div>` : `<span class="text-xs font-bold bg-yellow-100 text-yellow-800 px-2 py-1 rounded mt-2 inline-block">قيد الانتظار</span>`;
-                let btn = (role === 'admin' && !i.AdminReply) ? `<button onclick="replyInquiry(${i.InquiryID})" class="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs mt-2 shadow transition">إضافة رد / توجيه</button>` : '';
-
-                tbody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-4 align-top font-bold text-gray-800">${i.Title}<br><span class="text-gray-500 font-normal text-sm block mt-1 mb-2">${i.Content}</span>${adminSection}</td><td class="p-4 align-top">${i.CreatedBy}</td><td class="p-4 align-top text-left" dir="ltr">${new Date(i.CreatedAt).toLocaleDateString('ar-DZ')}<br>${btn}</td></tr>`; 
-            });
-        }
-        async function submitInquiry(e) {
-            e.preventDefault(); const u = JSON.parse(localStorage.getItem('user'));
-            await fetch('/api/inquiries', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({title: document.getElementById('inq-title').value, content: document.getElementById('inq-content').value, createdBy: u.fullName}) });
-            e.target.reset(); loadInquiries(); alert('✅ تم تسجيل الاستفسار');
-        }
-        async function replyInquiry(id) {
-            const rep = prompt('أدخل ردك أو توجيهك للموظف:');
-            if(rep) { await fetch(`/api/inquiries/${id}/admin`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({reply: rep}) }); loadInquiries(); }
-        }
-        async function loadWarnings() {
-            const res = await fetch('/api/warnings'); const data = await res.json();
-            const role = JSON.parse(localStorage.getItem('user')).role;
-            const tbody = document.getElementById('warnings-table-body'); if(!tbody) return; tbody.innerHTML = '';
-            
-            const form = document.getElementById('warning-form');
-            if(form) form.style.display = (role === 'admin') ? 'none' : 'block';
-
-            data.warnings.forEach(w => { 
-                let adminSection = w.AdminDecision ? `<div class="mt-2 p-2 bg-red-50 border-r-4 border-red-600 text-red-900 text-sm font-bold shadow-sm">👨‍💼 قرار المدير: ${w.AdminDecision}</div>` : `<span class="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-1 rounded mt-2 inline-block">للمعاينة</span>`;
-                let btn = (role === 'admin' && !w.AdminDecision) ? `<button onclick="decideWarning(${w.WarningID})" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs mt-2 shadow transition">تأكيد وتوجيه</button>` : '';
-
-                tbody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-4 align-top font-black text-red-700">${w.EmployeeName}</td><td class="p-4 align-top"><span class="text-gray-800">${w.Reason}</span><br>${adminSection}</td><td class="p-4 align-top text-left" dir="ltr">${new Date(w.CreatedAt).toLocaleDateString('ar-DZ')}<br>${btn}</td></tr>`; 
-            });
-        }
-        async function submitWarning(e) {
-            e.preventDefault(); const u = JSON.parse(localStorage.getItem('user'));
-            await fetch('/api/warnings', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({employeeName: document.getElementById('warn-emp').value, reason: document.getElementById('warn-reason').value, createdBy: u.fullName}) });
-            e.target.reset(); loadWarnings(); alert('✅ تم تسجيل الإنذار');
-        }
-        async function decideWarning(id) {
-            const dec = prompt('أدخل قرارك بخصوص هذا الإنذار (مثال: تأكيد الإنذار، توقيف...):');
-            if(dec) { await fetch(`/api/warnings/${id}/admin`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({decision: dec}) }); loadWarnings(); }
-        }
-
-        // ==========================================
-        // الشكاوى والنزاعات (مع إضافات الأيزو للمدير)
-        // ==========================================
         async function loadComplaints() {
             try {
                 const res = await fetch('/api/complaints'); 
@@ -497,200 +168,95 @@
                 allComplaints = data.complaints || [];
                 const role = JSON.parse(localStorage.getItem('user')).role;
                 const tbody = document.getElementById('complaints-table-body'); 
-                if(!tbody) return; 
                 tbody.innerHTML = '';
                 
-                if (allComplaints.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="text-center p-8 font-bold text-gray-500 bg-gray-50">🗂️ لا توجد أي ملفات مسجلة حتى الآن.</td></tr>';
-                    return;
-                }
-
                 allComplaints.forEach(c => {
-                    const cID = c.ComplaintID || c.complaint_id || c.id || 1;
-                    const refNumber = `AM-${new Date().getFullYear()}-${cID.toString().padStart(4, '0')}`;
-                    const createdDate = c.CreatedAt || c.created_at || new Date();
-                    
-                    // لون الأجل
-                    const rowClass = (role === 'legal' && c.Status !== 'مقبولة' && c.Status !== 'مرفوضة') ? getDeadlineStatusClass(createdDate) : '';
+                    const cID = c.ComplaintID;
+                    const rowClass = getRowColorClass(c); 
 
-                    let details = `<div class="mb-3"><span class="text-xs font-mono font-bold bg-blue-100 text-blue-900 px-2 py-1 rounded shadow-sm"><i class="fas fa-hashtag"></i> ${refNumber}</span></div>`;
-                    details += `<p class="font-black text-lg text-gray-800 mb-1">${c.Title}</p><span class="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-1 rounded">${c.ComplaintType}</span><p class="text-sm mt-2 text-gray-600 leading-relaxed">${c.Description}</p>`;
-                    if(c.FilePath) details += `<br><a href="/${c.FilePath}" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold text-sm mt-2 inline-block"><i class="fas fa-paperclip"></i> تحميل المرفق</a>`;
+                    let details = `<p class="font-black text-lg text-gray-800 mb-1">${c.Title}</p><span class="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-1 rounded">${c.ComplaintType}</span><p class="text-sm mt-2 text-gray-600 leading-relaxed">${c.Description}</p>`;
+                    if(c.FilePath) details += `<br><a href="/${c.FilePath}" target="_blank" class="text-blue-600 font-bold text-sm mt-2 inline-block"><i class="fas fa-paperclip"></i> تحميل المرفق</a>`;
                     
-                    // إضافات عرض الأيزو
-                    if(c.CurrentStage) { details += `<div class="bg-blue-50 p-2 mt-3 text-sm border-r-4 border-blue-500 rounded-l shadow-sm">📊 <b class="text-blue-900">مرحلة المعالجة:</b> <span class="text-gray-700">${c.CurrentStage}</span></div>`; }
-                    if(c.AssignedTo) { details += `<div class="bg-indigo-50 p-2 mt-2 text-sm border-r-4 border-indigo-500 rounded-l shadow-sm">🔄 <b class="text-indigo-900">محول إلى:</b> <span class="text-gray-700">${c.AssignedTo}</span></div>`; }
-                    if(c.PreviousOutcomes) { details += `<div class="bg-yellow-50 p-2 mt-2 text-xs border-r-4 border-yellow-500 rounded-l shadow-sm text-gray-600" style="white-space: pre-wrap;">${c.PreviousOutcomes}</div>`; }
+                    if(c.ProgressReports) { details += `<div class="bg-orange-50 border-r-4 border-orange-500 p-3 mt-3 rounded-l shadow-sm text-sm text-gray-800" style="white-space: pre-wrap;"><b class="text-orange-900"><i class="fas fa-list-ol ml-1"></i> تقارير المتابعة الدورية:</b>\n${c.ProgressReports}</div>`; }
+                    if(c.LegalOpinion) { details += `<div class="bg-green-50 border-r-4 border-green-600 p-3 mt-2 rounded-l shadow-sm text-sm"><b class="text-green-900">✅ الحل المقترح (مصلحة النزاعات):</b> ${c.LegalOpinion}</div>`; }
+                    if(c.AssignedTo) { details += `<div class="bg-red-50 border-r-4 border-red-600 p-3 mt-2 rounded-l shadow-sm text-sm"><b class="text-red-900">🔄 تم تحويل القضية إلى:</b> ${c.AssignedTo}</div>`; }
 
-                    if(c.AIOpinion && (role === 'legal' || role === 'admin')) { details += `<div class="bg-purple-50 p-3 mt-3 text-sm border-r-4 border-purple-500 rounded-l shadow-sm">🤖 <b class="text-purple-900">الذكاء الاصطناعي:</b> <span class="text-gray-700">${c.AIOpinion}</span></div>`; }
-                    if(c.LegalOpinion && (role === 'legal' || role === 'admin')) { details += `<div class="bg-gray-100 p-3 mt-2 text-sm border-r-4 border-gray-600 rounded-l shadow-sm">✍️ <b class="text-gray-800">مصلحة النزاعات:</b> <span class="text-gray-700">${c.LegalOpinion}</span></div>`; }
-                    if(c.AdminDecision && (role === 'legal' || role === 'admin')) { details += `<div class="bg-green-50 p-3 mt-2 text-sm border-r-4 border-green-600 font-bold text-green-900 rounded-l shadow-sm">👨‍💼 قرار الإدارة العامة: ${c.AdminDecision}</div>`; }
-                    
-                    let statusInfo = `<span class="font-bold text-gray-800 bg-gray-100 px-3 py-1 rounded">${c.Status}</span>`;
-                    if(c.HearingDate) statusInfo += `<div class="mt-3 text-red-700 font-bold bg-red-50 p-2 text-sm text-center rounded border border-red-200"><i class="fas fa-calendar-alt"></i> موعد مبرمج:<br>${c.HearingDate.split('T')[0]} - ${c.HearingTime}</div>`;
+                    let statusInfo = `<span class="font-bold text-gray-800 bg-gray-100 px-3 py-1 rounded block text-center mb-2">${c.Status}</span>`;
+                    if(c.IsRead && c.ViewedAt) {
+                        statusInfo += `<div class="text-xs bg-blue-50 text-blue-800 border border-blue-200 p-2 rounded mb-2"><i class="fas fa-eye"></i> عوينت:<br>${c.ViewedAt.replace('T', ' ').substring(0,16)}</div>`;
+                    } else {
+                        statusInfo += `<div class="text-xs bg-gray-200 text-gray-600 p-2 rounded mb-2"><i class="fas fa-eye-slash"></i> لم تعاين بعد</div>`;
+                    }
+                    if(c.Deadline && c.Status !== 'تم الحل' && c.Status !== 'محولة إداريا') {
+                        statusInfo += `<div class="text-xs font-bold bg-yellow-50 text-yellow-800 border border-yellow-300 p-2 rounded"><i class="fas fa-clock"></i> المهلة تنتهي:<br>${c.Deadline.replace('T', ' ').substring(0,16)}</div>`;
+                    }
 
                     let actions = '';
-                    if (role === 'legal' && !c.HearingDate && (c.Status === 'تسجيل أولي' || c.Status === 'قيد دراسة المدير')) {
-                        actions += `<div class="flex flex-col gap-1.5 no-print mb-3 bg-white p-2 rounded border border-gray-200"><input type="date" id="d-${cID}" class="border p-1.5 text-sm rounded outline-none"><input type="time" id="t-${cID}" class="border p-1.5 text-sm rounded outline-none"><button onclick="scheduleHearing(${cID})" class="bg-yellow-500 hover:bg-yellow-600 font-bold text-white py-1.5 rounded text-sm transition shadow-sm">برمجة موعد</button></div>`;
-                    }
                     
                     if (role === 'legal') {
-                        if (c.Status === 'تسجيل أولي') {
+                        if (!c.IsRead) {
+                            actions += `<button onclick="startStudy(${cID})" class="bg-blue-600 hover:bg-blue-700 font-bold text-white py-3 rounded-lg text-sm w-full shadow-lg transition animate-pulse"><i class="fas fa-eye ml-1"></i> بدء دراسة الملف<br><span class="text-xs font-normal">(تفعيل مهلة 7 أيام)</span></button>`;
+                        } else if (c.Status !== 'تم الحل' && c.Status !== 'محولة إداريا') {
                             actions += `<div class="flex flex-col gap-2 w-full mb-2">
-                                ${!c.AIOpinion ? `<button onclick="getAIOpinion(${cID})" class="bg-purple-600 hover:bg-purple-700 font-bold text-white px-2 py-2 rounded-lg text-sm shadow transition"><i class="fas fa-robot ml-1"></i> استشارة AI</button>` : ''}
-                                <button onclick="addLegalOpinion(${cID})" class="bg-blue-600 hover:bg-blue-700 font-bold text-white px-2 py-2 rounded-lg text-sm shadow transition"><i class="fas fa-pen ml-1"></i> تسجيل الرأي</button>
+                                <button onclick="addProgress(${cID})" class="bg-orange-500 hover:bg-orange-600 font-bold text-white py-2 rounded-lg text-sm shadow transition"><i class="fas fa-pen ml-1"></i> إضافة تقرير متابعة</button>
+                                <button onclick="extendDeadline(${cID})" class="bg-indigo-500 hover:bg-indigo-600 font-bold text-white py-2 rounded-lg text-sm shadow transition"><i class="fas fa-plus-circle ml-1"></i> تمديد المهلة (7 أيام)</button>
+                                <button onclick="resolveComplaint(${cID})" class="bg-green-600 hover:bg-green-700 font-bold text-white py-2 rounded-lg text-sm shadow transition border-t mt-1"><i class="fas fa-check-circle ml-1"></i> تسجيل الحل النهائي</button>
                             </div>`;
                         }
-                        actions += `<button onclick="deleteComplaint(${cID})" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2 py-1.5 rounded-lg text-sm w-full mt-1 no-print transition"><i class="fas fa-trash ml-1"></i> حذف</button>`;
                     }
                     
                     if (role === 'admin') {
-                        // تمت إضافة أزرار الأيزو (تحديث المرحلة وتحويل الملف)
-                        actions += `
-                            <div class="flex flex-col gap-2 w-full mb-2">
-                                <button onclick="adminDecide(${cID}, 'مقبولة')" class="bg-green-600 hover:bg-green-700 font-bold text-white py-2 rounded-lg text-sm shadow transition"><i class="fas fa-check ml-1"></i> قبول وإضافة توجيه</button>
-                                <button onclick="adminDecide(${cID}, 'مرفوضة')" class="bg-red-600 hover:bg-red-700 font-bold text-white py-2 rounded-lg text-sm shadow transition"><i class="fas fa-times ml-1"></i> رفض وإضافة توجيه</button>
-                                
-                                <button onclick="changeStage(${cID})" class="bg-blue-500 hover:bg-blue-600 font-bold text-white py-2 rounded-lg text-sm shadow transition mt-1"><i class="fas fa-tasks ml-1"></i> تحديث المرحلة (ISO)</button>
-                                <button onclick="reassignComplaint(${cID})" class="bg-indigo-500 hover:bg-indigo-600 font-bold text-white py-2 rounded-lg text-sm shadow transition"><i class="fas fa-exchange-alt ml-1"></i> تحويل الملف (ISO)</button>
-                            </div>
-                        `;
+                        const diff = c.Deadline ? (new Date(c.Deadline) - new Date()) : 1;
+                        if (diff < 0 && c.Status !== 'تم الحل' && c.Status !== 'محولة إداريا') {
+                            actions += `<button onclick="adminReassign(${cID})" class="bg-red-600 hover:bg-red-700 font-bold text-white py-3 rounded-lg text-sm w-full shadow transition mb-2 animate-bounce"><i class="fas fa-exchange-alt ml-1"></i> تحويل القضية<br><span class="text-xs font-normal">(بسبب تجاوز المهلة)</span></button>`;
+                        }
+                        actions += `<button onclick="addAdminNote(${cID})" class="bg-gray-800 hover:bg-black font-bold text-white py-2 rounded-lg text-sm w-full shadow transition"><i class="fas fa-comment-dots ml-1"></i> إضافة تعليق إداري</button>`;
                     }
-
-                    actions += `<button onclick="printReport(${cID})" class="bg-gray-700 hover:bg-gray-800 font-bold text-white px-2 py-2 rounded-lg text-sm w-full mt-2 no-print shadow transition"><i class="fas fa-print ml-1"></i> طباعة التقرير</button>`;
                     
-                    tbody.innerHTML += `<tr class="border-b hover:bg-gray-50 ${rowClass}"><td class="p-4 align-top">${details}</td><td class="p-4 align-top text-center">${statusInfo}</td><td class="p-4 align-top no-print w-48">${actions || '<span class="text-gray-400 font-bold text-sm">لا يوجد إجراء</span>'}</td></tr>`;
+                    tbody.innerHTML += `<tr class="border-b hover:bg-gray-50 ${rowClass}"><td class="p-4 align-top w-1/2">${details}</td><td class="p-4 align-top text-center">${statusInfo}</td><td class="p-4 align-top no-print">${actions || '<span class="text-gray-400 font-bold text-sm block text-center mt-4">لا توجد إجراءات متاحة</span>'}</td></tr>`;
                 });
-            } catch (error) {
-                console.error("Error loading complaints:", error);
+            } catch (error) { console.error("Error loading complaints:", error); }
+        }
+
+        async function startStudy(id) { 
+            if(confirm('سيتم إشعار الإدارة بأنك بدأت دراسة الملف، وسيبدأ عداد المهلة (7 أيام). هل توافق؟')) { 
+                await fetch(`/api/complaints/${id}/start`, { method: 'PUT' }); loadComplaints(); 
+            } 
+        }
+        async function addProgress(id) { 
+            const rep = prompt('اكتب ما قمت به اليوم في هذه القضية (سيطلع عليه المدير):');
+            if(rep) { await fetch(`/api/complaints/${id}/progress`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({report: rep}) }); loadComplaints(); }
+        }
+        async function extendDeadline(id) { 
+            if(confirm('هل أنت متأكد من طلب تمديد المهلة بـ 7 أيام إضافية؟')) {
+                await fetch(`/api/complaints/${id}/extend`, { method: 'PUT' }); loadComplaints(); 
             }
         }
-
-        async function submitComplaint(e) { 
-            e.preventDefault(); 
-            const u = JSON.parse(localStorage.getItem('user')); 
-            const fd = new FormData(e.target); 
-            fd.append('createdBy_FullName', u.fullName); 
-            fd.append('createdBy_Role', u.role); 
-            
-            try {
-                const res = await fetch('/api/complaints', { method: 'POST', body: fd }); 
-                const textResponse = await res.text();
-                let data;
-                try { data = JSON.parse(textResponse); } catch(e) { data = { success: false, error: textResponse }; }
-                
-                if (res.ok && data.success !== false && !data.error && !data.sqlMessage) {
-                    if(u.role !== 'reception') loadComplaints(); 
-                    if(u.role === 'admin') loadStats(); 
-                    e.target.reset(); 
-                    alert('✅ تم تسجيل وإرسال الملف بنجاح!'); 
-                } else {
-                    alert('❌ السيرفر رفض التسجيل! السبب الحقيقي هو:\n' + (data.error || data.sqlMessage || data.message || textResponse));
-                }
-            } catch (err) {
-                alert('❌ خطأ في الاتصال: ' + err.message);
-            }
+        async function resolveComplaint(id) { 
+            const op = prompt('القضية محلولة! اكتب تفاصيل الحل القانوني النهائي الذي وجدته:');
+            if(op) { await fetch(`/api/complaints/${id}/resolve`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({opinion: op}) }); loadComplaints(); }
+        }
+        async function adminReassign(id) { 
+            const ass = prompt('تجاوز هذا الملف المهلة المحددة! إلى أي جهة تريد تحويله؟ (مثال: مفتشية العمل، مجلس التأديب):');
+            if(ass) { await fetch(`/api/complaints/${id}/reassign`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({assignee: ass}) }); loadComplaints(); }
+        }
+        async function addAdminNote(id) { 
+            const note = prompt('أضف تعليقك أو توجيهك (سيظهر في التقارير):');
+            if(note) { await fetch(`/api/complaints/${id}/progress`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({report: 'توجيه المدير: ' + note}) }); loadComplaints(); }
         }
 
-        async function scheduleHearing(id) { const d = document.getElementById(`d-${id}`).value, t = document.getElementById(`t-${id}`).value; if(d&&t) { await fetch(`/api/complaints/${id}/schedule`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({date:d, time:t}) }); loadComplaints(); } }
-        async function getAIOpinion(id) { await fetch(`/api/complaints/${id}/ai`, { method: 'PUT' }); loadComplaints(); }
-        async function addLegalOpinion(id) { const op = prompt('سجل الرأي القانوني لمصلحة النزاعات:'); if(op) { await fetch(`/api/complaints/${id}/legal`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({legalOpinion: op}) }); loadComplaints(); } }
-        async function adminDecide(id, st) { const dec = prompt(`أدخل توجيهات المدير العام (${st}):`); if(dec) { await fetch(`/api/complaints/${id}/admin`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({adminDecision: dec, status:st}) }); loadComplaints(); loadStats(); } }
-        async function deleteComplaint(id) { if(confirm('هل أنت متأكد من حذف هذا الملف نهائياً؟')) { await fetch(`/api/complaints/${id}`, { method: 'DELETE' }); loadComplaints(); } }
-
-        // ==========================================
-        // وظائف أزرار الأيزو (ISO)
-        // ==========================================
-        async function changeStage(id) {
-            const stage = prompt('أدخل المرحلة الحالية للملف (مثال: قيد التحقيق الداخلي، استدعاء الأطراف، في انتظار تقرير المفتشية):');
-            if(stage) { 
-                await fetch(`/api/complaints/${id}/stage`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({stage}) }); 
-                loadComplaints(); 
-            }
-        }
-
-        async function reassignComplaint(id) {
-            const newAssignee = prompt('إلى من تريد تحويل هذا الملف؟ (مثال: لجنة التأديب، مستشار خارجي، مفتشية العمل):');
-            if(newAssignee) {
-                const previousOutcomes = prompt('أضف ملاحظة أو حيثيات التحويل للملف (اختياري):') || 'بدون ملاحظات';
-                await fetch(`/api/complaints/${id}/reassign`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({newAssignee, previousOutcomes}) }); 
-                loadComplaints(); 
-            }
-        }
-
-        // دالة الطباعة 
-        function printReport(id) {
-            const c = allComplaints.find(x => (x.ComplaintID || x.complaint_id || x.id) === id);
-            const cID = c.ComplaintID || c.complaint_id || c.id || 1;
-            const refNumber = `AM-${new Date().getFullYear()}-${cID.toString().padStart(4, '0')}`;
-            const securityCode = `CODE-${(cID * 1962).toString(16).toUpperCase()}`;
-            let legalOp = c.LegalOpinion;
-            if (!legalOp && c.AdminDecision) { legalOp = 'لم يُسجل (تم الفصل من طرف الإدارة العامة مباشرة)'; } 
-            else if (!legalOp) { legalOp = 'قيد الدراسة'; }
-
-            const printHtml = `
-            <div dir="rtl" style="font-family: Tajawal, sans-serif; padding: 40px; color: #1f2937;">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 30px;">
-                    <img src="logo1.jpeg" alt="شعار الأكاديمية" style="height: 90px; border-radius: 50%;">
-                    <div style="text-align: center;">
-                        <h2 style="margin-bottom:5px; font-weight:900; font-size:22px;">الجمهورية الجزائرية الديمقراطية الشعبية</h2>
-                        <h3 style="color:#1e3a8a; font-weight:bold; font-size:18px;">مجمع أشبال متيجة - إدارة الشؤون القانونية والمنازعات</h3>
-                    </div>
-                    <div style="text-align: left; font-family: monospace; font-size: 13px; background: #f3f4f6; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb;">
-                        <p style="margin:0 0 5px 0;">رقم المرجع: <b style="font-size:15px; color:#1e3a8a;">${refNumber}</b></p>
-                        <p style="margin:0 0 5px 0;">كود التوثيق: <b>${securityCode}</b></p>
-                        <p style="margin:0;">تاريخ السحب: <b>${new Date().toLocaleDateString('ar-DZ')}</b></p>
-                    </div>
-                </div>
-                
-                <h3 style="text-decoration: underline; text-align: center; margin-bottom: 40px; font-size:24px; font-weight:900;">تقرير تفصيلي لملف: ${c.Title}</h3>
-                
-                <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
-                    <p style="margin-bottom:10px;"><b style="color:#1e3a8a;">تصنيف الملف:</b> ${c.ComplaintType}</p>
-                    <p style="line-height:1.6;"><b style="color:#1e3a8a;">التفاصيل والوقائع:</b><br> ${c.Description}</p>
-                </div>
-                
-                <div style="background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
-                    <p style="margin-bottom:15px; line-height:1.6;"><b style="color:#4b5563; font-size:14px; display:block;">رأي الشؤون القانونية:</b> ${legalOp}</p>
-                    <p style="line-height:1.6; font-size:16px;"><b style="color:#166534; display:block;">القرار النهائي للإدارة العامة:</b> ${c.AdminDecision || 'قيد الانتظار'} <span style="font-size:12px; background:#e5e7eb; padding:2px 5px; border-radius:3px;">(${c.Status})</span></p>
-                </div>
-                
-                <br><br><br>
-                <div style="display:flex; justify-content: space-around; font-weight: bold; text-align:center;">
-                    <p style="border-top:1px solid #000; padding-top:10px; width:200px;">تأشيرة مصلحة النزاعات</p>
-                    <p style="border-top:1px solid #000; padding-top:10px; width:200px;">تأشيرة المدير العام</p>
-                </div>
-            </div>`;
-            
-            const originalBody = document.body.innerHTML; 
-            document.body.innerHTML = printHtml; 
-            window.print(); 
-            location.reload();
-        }
-
-        // --- المحامين والعقود ---
-        async function loadLawyers() { 
-            const res = await fetch('/api/lawyers'); const data = await res.json(); 
-            const sel = document.getElementById('lawyer-select'); const tb = document.getElementById('lawyers-table-body');
-            if(sel) sel.innerHTML = '<option value="">-- اختر المحامي --</option>'; if(tb) tb.innerHTML = '';
-            data.lawyers.forEach(l => { 
-                if(sel) sel.innerHTML += `<option value="${l.LawyerID}">${l.FullName}</option>`; 
-                if(tb) tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 font-bold">${l.FullName}</td><td class="p-3" dir="ltr">${l.PhoneNumber}</td><td class="p-3 text-gray-500" dir="ltr">${l.Email || '-'}</td><td class="p-3 text-center"><button onclick="deleteLawyer(${l.LawyerID})" class="bg-red-100 text-red-700 px-3 py-1 rounded text-xs font-bold transition hover:bg-red-200"><i class="fas fa-trash"></i></button></td></tr>`;
-            }); 
-        }
-        async function submitLawyer(e) { e.preventDefault(); await fetch('/api/lawyers', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fullName: document.getElementById('lawyer-name').value, email: document.getElementById('lawyer-email').value, phone: document.getElementById('lawyer-phone').value}) }); e.target.reset(); loadLawyers(); alert('✅ تم حفظ بيانات المحامي بنجاح'); }
-        async function deleteLawyer(id) { if(confirm('هل أنت متأكد من حذف المحامي؟')) { await fetch(`/api/lawyers/${id}`, { method: 'DELETE' }); loadLawyers(); } }
-        async function submitContract(e) { e.preventDefault(); const fd = new FormData(e.target); fd.append('createdBy', JSON.parse(localStorage.getItem('user')).fullName); await fetch('/api/contracts', { method: 'POST', body: fd }); e.target.reset(); alert('✅ تم تسجيل العقد ورفعه بنجاح'); }
-
+        async function submitComplaint(e) { e.preventDefault(); const fd = new FormData(e.target); const u = JSON.parse(localStorage.getItem('user')); fd.append('createdBy_FullName', u.fullName); fd.append('createdBy_Role', u.role); await fetch('/api/complaints', { method: 'POST', body: fd }); e.target.reset(); loadComplaints(); alert('✅ تم تسجيل وإرسال الملف بنجاح!'); }
         function logout() { localStorage.clear(); location.reload(); }
         
-        window.onload = () => { 
-            if(localStorage.getItem('user')) {
-                initDashboard(); 
-            } else {
-                loadPublicLaws();
-            }
-        };
+        async function loadUsers() { const res = await fetch('/api/users'); const data = await res.json(); const tbody = document.getElementById('users-table-body'); tbody.innerHTML = ''; data.users.forEach(u => { tbody.innerHTML += `<tr class="border-b"><td class="p-3 font-bold">${u.FullName}</td><td class="p-3 text-gray-500" dir="ltr">${u.Username}</td><td class="p-3"><span class="bg-gray-100 px-2 py-1 rounded text-xs">${roleNames[u.Role]}</span></td><td class="p-3 text-center"><button onclick="deleteUser(${u.UserID})" class="bg-red-100 text-red-700 px-3 rounded"><i class="fas fa-trash"></i></button></td></tr>`; }); }
+        async function addUser(e) { e.preventDefault(); await fetch('/api/users', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({fullName: document.getElementById('u-name').value, username: document.getElementById('u-user').value, password: document.getElementById('u-pass').value, role: document.getElementById('u-role').value}) }); loadUsers(); e.target.reset(); }
+        async function deleteUser(id) { await fetch(`/api/users/${id}`, {method:'DELETE'}); loadUsers(); }
+        async function loadLaws() { const res = await fetch('/api/laws'); const data = await res.json(); let html = ''; data.laws.forEach(l => { html += `<div class="bg-gray-50 p-4 rounded-xl border"><label class="font-bold block mb-3">${l.LawType}</label><textarea rows="4" onblur="updateLaw('${l.LawType}', this.value)" class="w-full border p-3 rounded-lg">${l.Content}</textarea></div>`; }); document.getElementById('laws-container').innerHTML = html; }
+        async function updateLaw(type, content) { await fetch('/api/laws', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({type, content}) }); }
+        async function backupDatabase() { try { alert('جاري تجهيز النسخة الاحتياطية... يرجى الانتظار.'); const response = await fetch('/api/backup', { method: 'GET' }); if (response.ok) { const blob = await response.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `Backup_Cadets_Mitidja.json`; document.body.appendChild(a); a.click(); a.remove(); } else { alert('❌ النسخ الاحتياطي غير متوفر حالياً.'); } } catch (error) { alert('❌ خطأ في الاتصال.'); } }
+        function searchTable() { let input = document.getElementById("searchInput").value.toUpperCase(); let tr = document.getElementById("complaintsTable").getElementsByTagName("tr"); for (let i = 1; i < tr.length; i++) { let td = tr[i].getElementsByTagName("td")[0]; if (td) tr[i].style.display = (td.textContent || td.innerText).toUpperCase().indexOf(input) > -1 ? "" : "none"; } }
+
+        window.onload = () => { if(localStorage.getItem('user')) initDashboard(); else loadPublicLaws(); };
     </script>
 </body>
 </html>
