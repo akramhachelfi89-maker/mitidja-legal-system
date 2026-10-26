@@ -26,7 +26,7 @@ if (!fs.existsSync(uploadDir)) {
 const db = mysql.createPool({
     connectionLimit: 3, // تم التخفيض لتفادي بلوك Clever Cloud
     host: 'bdj70168ffojqcl967nx-mysql.services.clever-cloud.com',
-    user: 'urc79olctr3bctj4', 
+    user: 'urc79o1ctr3bctj4', 
     password: 'lWo2Nxj2VAJxcZ7K2KIL', 
     database: 'bdj70168ffojqcl967nx'
 });
