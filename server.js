@@ -176,7 +176,7 @@ app.put('/api/warnings/:id/admin', (req, res) => {
 
 
 // تشغيل السيرفر
-app.listen(3000, () => {
-    console.log('✅ السيرفر شغال بنجاح على المنفذ 3000');
-    console.log('🔗 رابط الدخول: http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`✅ السيرفر شغال بنجاح على المنفذ ${PORT}`);
 });
