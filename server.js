@@ -37,7 +37,7 @@ const upload = multer({ storage });
 // --- تسجيل الدخول ---
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-    db.query('SELECT * FROM Users WHERE Username = ? AND Password = ?', [username, password], (err, results) => {
+    db.query('SELECT * FROM users WHERE Username = ? AND PasswordHash = ?', [username, password], (err, results) => {
         if (err) return res.status(500).json({ success: false, message: 'خطأ في السيرفر' });
         if (results.length > 0) {
             const user = results[0];
@@ -69,14 +69,14 @@ app.get('/api/stats', (req, res) => {
 
 // --- إدارة المستخدمين ---
 app.get('/api/users', (req, res) => {
-    db.query('SELECT * FROM Users', (err, results) => res.json({ success: true, users: results || [] }));
+    db.query('SELECT * FROM users', (err, results) => res.json({ success: true, users: results || [] }));
 });
 app.post('/api/users', (req, res) => {
     const { fullName, username, password, role } = req.body;
-    db.query('INSERT INTO Users (FullName, Username, Password, Role) VALUES (?, ?, ?, ?)', [fullName, username, password, role], err => res.json({ success: !err }));
+    db.query('INSERT INTO users (FullName, Username, PasswordHash, Role) VALUES (?, ?, ?, ?)', [fullName, username, password, role], err => res.json({ success: !err }));
 });
 app.delete('/api/users/:id', (req, res) => {
-    db.query('DELETE FROM Users WHERE UserID = ?', [req.params.id], err => res.json({ success: !err }));
+    db.query('DELETE FROM users WHERE UserID = ?', [req.params.id], err => res.json({ success: !err }));
 });
 
 // --- إدارة النزاعات والملفات ---
@@ -92,15 +92,19 @@ app.post('/api/complaints', upload.single('file'), (req, res) => {
 app.delete('/api/complaints/:id', (req, res) => {
     db.query('DELETE FROM Complaints WHERE ComplaintID = ?', [req.params.id], err => res.json({ success: !err }));
 });
+// برمجة الجلسة (الاستماع)
 app.put('/api/complaints/:id/schedule', (req, res) => {
     db.query('UPDATE Complaints SET HearingDate = ?, HearingTime = ? WHERE ComplaintID = ?', [req.body.date, req.body.time, req.params.id], err => res.json({ success: !err }));
 });
+// رأي الشؤون القانونية
 app.put('/api/complaints/:id/legal', (req, res) => {
     db.query('UPDATE Complaints SET LegalOpinion = ?, Status = "قيد دراسة المدير" WHERE ComplaintID = ?', [req.body.legalOpinion, req.params.id], err => res.json({ success: !err }));
 });
+// قرار المدير العام
 app.put('/api/complaints/:id/admin', (req, res) => {
     db.query('UPDATE Complaints SET AdminDecision = ?, Status = ? WHERE ComplaintID = ?', [req.body.adminDecision, req.body.status, req.params.id], err => res.json({ success: !err }));
 });
+// الذكاء الاصطناعي
 app.put('/api/complaints/:id/ai', (req, res) => {
     db.query('UPDATE Complaints SET AIOpinion = "بناءً على المعطيات، يُنصح بالرجوع إلى المادة 42 من النظام الداخلي للمؤسسة المتعلقة بالنزاعات، وإجراء جلسة صلح بين الأطراف كخطوة أولى." WHERE ComplaintID = ?', [req.params.id], err => res.json({ success: !err }));
 });
@@ -140,6 +144,10 @@ app.get('/api/notifications/count', (req, res) => {
     });
 });
 
+// ==========================================
+// الاستفسارات والإنذارات (مع صلاحيات المدير)
+// ==========================================
+
 // --- الاستفسارات ---
 app.get('/api/inquiries', (req, res) => {
     db.query('SELECT * FROM Inquiries ORDER BY InquiryID DESC', (err, results) => res.json({ success: true, inquiries: results || [] }));
@@ -147,6 +155,10 @@ app.get('/api/inquiries', (req, res) => {
 app.post('/api/inquiries', (req, res) => {
     const { title, content, createdBy } = req.body;
     db.query('INSERT INTO Inquiries (Title, Content, CreatedBy) VALUES (?, ?, ?)', [title, content, createdBy], err => res.json({ success: !err }));
+});
+// رد المدير على الاستفسار
+app.put('/api/inquiries/:id/admin', (req, res) => {
+    db.query('UPDATE Inquiries SET AdminReply = ?, Status = "تم الرد" WHERE InquiryID = ?', [req.body.reply, req.params.id], err => res.json({ success: !err }));
 });
 
 // --- الإنذارات ---
@@ -157,6 +169,11 @@ app.post('/api/warnings', (req, res) => {
     const { employeeName, reason, createdBy } = req.body;
     db.query('INSERT INTO Warnings (EmployeeName, Reason, CreatedBy) VALUES (?, ?, ?)', [employeeName, reason, createdBy], err => res.json({ success: !err }));
 });
+// توجيه المدير على الإنذار
+app.put('/api/warnings/:id/admin', (req, res) => {
+    db.query('UPDATE Warnings SET AdminDecision = ?, Status = "مؤكد" WHERE WarningID = ?', [req.body.decision, req.params.id], err => res.json({ success: !err }));
+});
+
 
 // تشغيل السيرفر
 app.listen(3000, () => {
