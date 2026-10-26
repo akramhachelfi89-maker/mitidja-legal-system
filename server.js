@@ -16,7 +16,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // لفت�
 const db = mysql.createPool({
     connectionLimit: 10, // يسمح بـ 10 اتصالات متزامنة
     host: 'bdj70168ffojqcl967nx-mysql.services.clever-cloud.com',
-    user: 'urc79olctr3bctj4', 
+    user: 'urc79o1ctr3bctj4', 
     password: 'lWO2Nxj2VAJxCZ7K2KIL', 
     database: 'bdj70168ffojqcl967nx'
 });
