@@ -14,7 +14,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // لفت�
 // 1. الاتصال بقاعدة البيانات (نظام Pool لتفادي الانقطاع)
 // ==========================================
 const db = mysql.createPool({
-    connectionLimit: 10, // يسمح بـ 10 اتصالات متزامنة
+    connectionLimit: 3, // يسمح بـ 10 اتصالات متزامنة
     host: 'bdj70168ffojqcl967nx-mysql.services.clever-cloud.com',
     user: 'urc79o1ctr3bctj4', 
     password: 'lWO2Nxj2VAJxCZ7K2KIL', 
