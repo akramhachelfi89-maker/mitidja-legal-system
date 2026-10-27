@@ -30,20 +30,15 @@
     <div id="public-screen" class="min-h-screen flex flex-col">
         <header class="bg-blue-900 text-white shadow-lg p-4 flex justify-between items-center z-20 sticky top-0">
             <div class="flex items-center gap-4">
-                <!-- شعار المؤسسة -->
                 <img src="logo1.jpeg" class="w-14 h-14 rounded-full border-2 border-white shadow-sm" alt="شعار المؤسسة">
-                
                 <div class="flex flex-col">
                     <h1 class="text-2xl font-black text-white tracking-wide">مجمع أشبال متيجة</h1>
                     <p class="text-xs text-orange-300 font-bold mt-1">البوابة القانونية وإدارة النزاعات</p>
                 </div>
-
-                <!-- شعار الأيزو (Logo 2) -->
                 <div class="mr-4 pl-4 border-r border-blue-700 flex items-center">
                     <img src="logo2.jpeg" onerror="this.src='logo2.png'" class="h-12 bg-white rounded p-1 shadow-sm" alt="ISO Logo">
                 </div>
             </div>
-            
             <div class="flex gap-2">
                 <button onclick="openLoginModal('legal')" class="bg-blue-700 hover:bg-blue-600 px-4 py-2 rounded-lg text-sm font-bold shadow transition"><i class="fas fa-user-shield ml-1"></i> الشؤون القانونية</button>
                 <button onclick="openLoginModal('admin')" class="bg-gray-800 hover:bg-black px-4 py-2 rounded-lg text-sm font-bold shadow transition"><i class="fas fa-user-tie ml-1"></i> المدير العام</button>
@@ -174,7 +169,7 @@
                 </div>
 
                 <div id="view-laws" class="view-section bg-white p-6 rounded-2xl shadow mb-6">
-                    <h3 id="laws-section-title" class="text-lg font-bold mb-4 border-b pb-2"><i class="fas fa-gavel text-blue-600 ml-2"></i>المرجع القانوني</h3>
+                    <h3 id="laws-section-title" class="text-lg font-bold mb-4 border-b pb-2"><i class="fas fa-scale-balanced text-blue-600 ml-2"></i>المرجع القانوني</h3>
                     <div id="admin-laws-container" class="grid gap-4 md:grid-cols-3"></div>
                 </div>
 
@@ -198,8 +193,7 @@
         let allComplaints = []; let lastNotifCount = 0; 
 
         function openLoginModal(roleHint) {
-            document.getElementById('login-modal').classList.remove('hidden');
-            document.getElementById('login-modal').classList.add('flex');
+            document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex');
             setTimeout(() => { document.getElementById('login-modal-content').classList.remove('scale-95', 'opacity-0'); }, 10);
             document.getElementById('modal-title').textContent = roleHint === 'admin' ? 'دخول المدير العام' : 'دخول الشؤون القانونية';
         }
@@ -210,9 +204,7 @@
 
         async function handleLogin(e) {
             e.preventDefault(); 
-            const userVal = document.getElementById('username').value;
-            const passVal = document.getElementById('password').value;
-            const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: userVal, password: passVal }) });
+            const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: document.getElementById('username').value, password: document.getElementById('password').value }) });
             const data = await res.json();
             if (data.success) { localStorage.setItem('user', JSON.stringify(data.user)); initDashboard(); closeLoginModal(); } 
             else { document.getElementById('login-error').textContent = data.message; document.getElementById('login-error').classList.remove('hidden'); }
@@ -235,7 +227,7 @@
                 addLink('الإنذارات', 'view-warnings', 'fa-exclamation-triangle');
                 addLink('إدارة العقود', 'view-contracts', 'fa-file-contract'); 
                 addLink('تعديل القوانين', 'view-laws', 'fa-scale-balanced'); 
-                showViews('view-complaints-list', 'دراسة الملفات والنزاعات (ISO)');
+                showViews('view-complaints-list', 'دراسة الملفات والنزاعات');
             } else if (user.role === 'admin') {
                 addLink('المؤشرات الحية', 'view-dashboard', 'fa-chart-pie'); 
                 addLink('متابعة الملفات', 'view-complaints-list', 'fa-check-double'); 
@@ -245,33 +237,19 @@
                 addLink('حسابات النظام', 'view-users', 'fa-users-cog'); 
                 showViews('view-dashboard', 'لوحة القيادة');
             }
-            loadAllData(user.role);
-            checkNotifications();
-            setInterval(checkNotifications, 10000); 
+            loadAllData(user.role); checkNotifications(); setInterval(checkNotifications, 10000); 
         }
 
         function showViews(viewIds, title) { document.getElementById('page-title').textContent = title; document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active')); viewIds.split(',').forEach(id => {const el = document.getElementById(id); if(el) el.classList.add('active');}); }
         function logout() { localStorage.clear(); location.reload(); }
 
-        async function loadAllData(role) { 
-            loadAdminLaws(); 
-            loadComplaints(); 
-            loadInquiries(); 
-            loadWarnings(); 
-            if(role === 'legal') loadLawyers();
-            if(role === 'admin') { loadStats(); loadUsers(); } 
-        }
+        async function loadAllData(role) { loadAdminLaws(); loadComplaints(); loadInquiries(); loadWarnings(); if(role === 'legal') loadLawyers(); if(role === 'admin') { loadStats(); loadUsers(); } }
 
         async function submitComplaint(e) { 
-            e.preventDefault(); 
-            const fd = new FormData(e.target); 
-            const u = JSON.parse(localStorage.getItem('user')) || { fullName: 'بوابة العموم (مجهول)', role: 'public' }; 
-            fd.append('createdBy_FullName', u.fullName); 
-            fd.append('createdBy_Role', u.role); 
-            const res = await fetch('/api/complaints', { method: 'POST', body: fd }); 
-            const data = await res.json();
-            if(data.success) { alert('✅ تم الإرسال بنجاح للمصلحة القانونية!'); e.target.reset(); if(u.role !== 'public') loadComplaints(); }
-            else alert('❌ حدث خطأ في الإرسال!');
+            e.preventDefault(); const fd = new FormData(e.target); const u = JSON.parse(localStorage.getItem('user')) || { fullName: 'بوابة العموم', role: 'public' }; 
+            fd.append('createdBy_FullName', u.fullName); fd.append('createdBy_Role', u.role); 
+            const res = await fetch('/api/complaints', { method: 'POST', body: fd }); const data = await res.json();
+            if(data.success) { alert('✅ تم الإرسال بنجاح للمصلحة القانونية!'); e.target.reset(); if(u.role !== 'public') loadComplaints(); } else alert('❌ حدث خطأ!');
         }
 
         function getRowColorClass(c) {
@@ -287,9 +265,26 @@
             
             allComplaints.forEach(c => {
                 const cID = c.ComplaintID; const rowClass = getRowColorClass(c); 
+                
+                // الحجب الذكي
+                let displayDesc = c.Description;
+                let displayFile = c.FilePath ? `<br><a href="/${c.FilePath}" target="_blank" class="text-blue-600 font-bold text-sm mt-2 inline-block"><i class="fas fa-paperclip"></i> تحميل المرفق</a>` : '';
+                let aiBox = '';
+
+                if (role === 'legal' && !c.IsRead) {
+                    displayDesc = `<div class="bg-gray-100 p-4 rounded-xl mt-3 text-center border-2 border-dashed border-gray-300"><i class="fas fa-lock text-gray-400 text-3xl mb-2 block"></i><span class="text-gray-500 font-bold text-sm leading-relaxed block">محتوى الشكوى والمرفقات مخفية مؤقتاً.<br>الرجاء الضغط على <span class="text-gray-700">"بدء دراسة الملف"</span> أدناه لتفعيل المهلة القانونية (7 أيام) وعرض التفاصيل.</span></div>`;
+                    displayFile = ''; 
+                } else {
+                    displayDesc = `<p class="text-sm mt-2 text-gray-600 leading-relaxed">${displayDesc}</p>`;
+                    // جديد: مربع الذكاء الاصطناعي (يظهر للمسؤولة فقط ومخفي عن الطباعة no-print)
+                    if(role === 'legal' && c.IsRead) {
+                        aiBox = `<div id="ai-box-${cID}" class="hidden no-print mt-3 p-3 bg-purple-50 border-r-4 border-purple-600 rounded-l shadow-sm text-sm"><b class="text-purple-900"><i class="fas fa-robot ml-1"></i> رأي المساعد الذكي (سري):</b><div id="ai-content-${cID}" class="mt-1 text-gray-800 whitespace-pre-wrap font-bold"></div></div>`;
+                    }
+                }
+
                 let details = `<div class="mb-2"><span class="text-xs font-mono font-bold bg-blue-100 text-blue-900 px-2 py-1 rounded shadow-sm">AM-${new Date().getFullYear()}-${cID.toString().padStart(4, '0')}</span><span class="text-xs text-gray-500 mr-2">سُجل عبر: ${c.CreatedBy_FullName}</span></div>`;
-                details += `<p class="font-black text-lg text-gray-800 mb-1">${c.Title}</p><span class="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-1 rounded">${c.ComplaintType}</span><p class="text-sm mt-2 text-gray-600 leading-relaxed">${c.Description}</p>`;
-                if(c.FilePath) details += `<br><a href="/${c.FilePath}" target="_blank" class="text-blue-600 font-bold text-sm mt-2 inline-block"><i class="fas fa-paperclip"></i> تحميل المرفق</a>`;
+                details += `<p class="font-black text-lg text-gray-800 mb-1">${c.Title}</p><span class="text-xs font-bold bg-gray-200 text-gray-700 px-2 py-1 rounded">${c.ComplaintType}</span>${displayDesc}${displayFile}${aiBox}`;
+                
                 if(c.ProgressReports) details += `<div class="bg-orange-50 border-r-4 border-orange-500 p-3 mt-3 rounded-l shadow-sm text-sm text-gray-800 whitespace-pre-wrap"><b class="text-orange-900"><i class="fas fa-list-ol ml-1"></i> تقارير المتابعة الدورية:</b>\n${c.ProgressReports}</div>`;
                 if(c.LegalOpinion) details += `<div class="bg-gray-100 border-r-4 border-gray-600 p-3 mt-2 rounded-l shadow-sm text-sm"><b class="text-gray-900">✍️ الحل المقترح:</b> ${c.LegalOpinion}</div>`;
                 if(c.AssignedTo) details += `<div class="bg-indigo-50 border-r-4 border-indigo-600 p-3 mt-2 rounded-l shadow-sm text-sm"><b class="text-indigo-900">🔄 مُحول إلى:</b> ${c.AssignedTo}</div>`;
@@ -302,24 +297,50 @@
 
                 let actions = '';
                 if (role === 'legal') {
-                    if (!c.IsRead) actions += `<button onclick="startStudy(${cID})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-sm w-full shadow-lg transition animate-pulse"><i class="fas fa-eye ml-1"></i> بدء دراسة الملف (ISO)</button>`;
+                    if (!c.IsRead) actions += `<button onclick="startStudy(${cID})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-sm w-full shadow-lg transition animate-pulse"><i class="fas fa-unlock-alt ml-1"></i> بدء دراسة الملف<br><span class="text-xs font-normal opacity-75">(تفعيل مهلة 7 أيام)</span></button>`;
                     else if (c.Status !== 'تم الحل' && c.Status !== 'مقبولة' && c.Status !== 'مرفوضة') {
-                        actions += `<div class="flex flex-col gap-2 w-full mb-2"><button onclick="addProgress(${cID})" class="bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg text-sm shadow font-bold"><i class="fas fa-pen ml-1"></i> تقرير متابعة</button><button onclick="extendDeadline(${cID})" class="bg-indigo-500 text-white py-2 rounded-lg text-sm shadow font-bold"><i class="fas fa-plus-circle ml-1"></i> تمديد المهلة</button><button onclick="resolveComplaint(${cID})" class="bg-green-600 text-white py-2 rounded-lg text-sm shadow font-bold border-t mt-1 pt-2"><i class="fas fa-check-circle ml-1"></i> تسجيل الحل النهائي (ISO)</button></div>`;
+                        // جديد: زر الذكاء الاصطناعي
+                        actions += `<div class="flex flex-col gap-2 w-full mb-2">
+                            <button onclick="getAIAdvice(${cID}, event)" class="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg text-sm shadow font-bold mb-1"><i class="fas fa-magic ml-1"></i> استشارة الذكاء الاصطناعي (سرية)</button>
+                            <button onclick="addProgress(${cID})" class="bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg text-sm shadow font-bold"><i class="fas fa-pen ml-1"></i> تقرير متابعة</button>
+                            <button onclick="extendDeadline(${cID})" class="bg-indigo-500 text-white py-2 rounded-lg text-sm shadow font-bold"><i class="fas fa-plus-circle ml-1"></i> تمديد المهلة</button>
+                            <button onclick="resolveComplaint(${cID})" class="bg-green-600 text-white py-2 rounded-lg text-sm shadow font-bold border-t mt-1 pt-2"><i class="fas fa-check-circle ml-1"></i> تسجيل الحل النهائي</button>
+                        </div>`;
                     }
-                    actions += `<button onclick="deleteComplaint(${cID})" class="bg-red-100 text-red-700 font-bold px-2 py-1.5 rounded-lg text-sm w-full mt-2 no-print"><i class="fas fa-trash ml-1"></i> حذف الملف</button>`;
+                    actions += `<button onclick="deleteComplaint(${cID})" class="bg-red-100 text-red-700 font-bold px-2 py-1.5 rounded-lg text-sm w-full mt-2 no-print hover:bg-red-200 transition"><i class="fas fa-trash ml-1"></i> حذف الملف</button>`;
                 }
                 if (role === 'admin') {
-                    if (c.Deadline && new Date() > new Date(c.Deadline) && c.Status !== 'تم الحل' && c.Status !== 'محولة إداريا' && c.Status !== 'مقبولة' && c.Status !== 'مرفوضة') actions += `<button onclick="adminReassign(${cID})" class="bg-red-600 text-white font-bold py-2 rounded-lg text-sm w-full shadow mb-2 animate-bounce"><i class="fas fa-exchange-alt ml-1"></i> تحويل (تجاوز المهلة ISO)</button>`;
+                    if (c.Deadline && new Date() > new Date(c.Deadline) && c.Status !== 'تم الحل' && c.Status !== 'محولة إداريا' && c.Status !== 'مقبولة' && c.Status !== 'مرفوضة') actions += `<button onclick="adminReassign(${cID})" class="bg-red-600 text-white font-bold py-2 rounded-lg text-sm w-full shadow mb-2 animate-bounce"><i class="fas fa-exchange-alt ml-1"></i> تحويل (تجاوز المهلة)</button>`;
                     if (c.Status !== 'مقبولة' && c.Status !== 'مرفوضة') {
                         actions += `<div class="flex flex-col gap-2 w-full mb-2"><button onclick="adminDecide(${cID}, 'مقبولة')" class="bg-green-600 text-white font-bold py-2 rounded-lg text-sm shadow"><i class="fas fa-check ml-1"></i> قبول التوجيه</button><button onclick="adminDecide(${cID}, 'مرفوضة')" class="bg-red-600 text-white font-bold py-2 rounded-lg text-sm shadow"><i class="fas fa-times ml-1"></i> رفض التوجيه</button><button onclick="addAdminNote(${cID})" class="bg-gray-800 text-white font-bold py-2 rounded-lg text-sm shadow"><i class="fas fa-comment-dots ml-1"></i> تعليق إداري</button></div>`;
                     }
                 }
-                actions += `<button onclick="printReport(${cID})" class="bg-gray-700 text-white font-bold px-2 py-2 rounded-lg text-sm w-full mt-2 no-print shadow"><i class="fas fa-print ml-1"></i> طباعة التقرير (ISO)</button>`;
+                actions += `<button onclick="printReport(${cID})" class="bg-gray-700 text-white font-bold px-2 py-2 rounded-lg text-sm w-full mt-2 no-print shadow hover:bg-gray-800 transition"><i class="fas fa-print ml-1"></i> طباعة التقرير</button>`;
                 tbody.innerHTML += `<tr class="border-b hover:bg-gray-50 ${rowClass}"><td class="p-4 align-top w-1/2">${details}</td><td class="p-4 align-top text-center">${statusInfo}</td><td class="p-4 align-top no-print">${actions}</td></tr>`;
             });
         }
+
+        // --- دالة طلب المساعدة من الذكاء الاصطناعي ---
+        async function getAIAdvice(id, event) {
+            const btn = event.currentTarget;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-1"></i> جاري التحليل...';
+            btn.disabled = true;
+            
+            const c = allComplaints.find(x => x.ComplaintID === id);
+            try {
+                const res = await fetch('/api/ai-consult', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ description: c.Description }) });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById(`ai-box-${id}`).classList.remove('hidden');
+                    document.getElementById(`ai-content-${id}`).innerHTML = data.opinion;
+                } else { alert('❌ ' + data.error); }
+            } catch(e) { alert('حدث خطأ في الاتصال بالذكاء الاصطناعي'); }
+            
+            btn.innerHTML = originalHtml; btn.disabled = false;
+        }
         
-        async function startStudy(id) { if(confirm('بدء الدراسة؟')) { await fetch(`/api/complaints/${id}/start`, { method: 'PUT' }); loadComplaints(); } }
+        async function startStudy(id) { if(confirm('سيتم كشف محتوى الملف وتفعيل مهلة 7 أيام قانونية. متأكد؟')) { await fetch(`/api/complaints/${id}/start`, { method: 'PUT' }); loadComplaints(); } }
         async function addProgress(id) { const r = prompt('التقرير:'); if(r) { await fetch(`/api/complaints/${id}/progress`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({report: r}) }); loadComplaints(); } }
         async function extendDeadline(id) { if(confirm('تمديد 7 أيام؟')) { await fetch(`/api/complaints/${id}/extend`, { method: 'PUT' }); loadComplaints(); } }
         async function resolveComplaint(id) { const op = prompt('الحل القانوني:'); if(op) { await fetch(`/api/complaints/${id}/resolve`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({opinion: op}) }); loadComplaints(); } }
@@ -331,56 +352,21 @@
         function printReport(id) {
             const c = allComplaints.find(x => x.ComplaintID === id);
             const ref = `AM-${new Date().getFullYear()}-${c.ComplaintID.toString().padStart(4, '0')}`;
+            // الكود تاع الطباعة مافيهش نهائيا مربع الذكاء الاصطناعي (معزول تماماً)
             const html = `<div dir="rtl" style="font-family: Tajawal; padding:40px; color:#1f2937;"><div style="display:flex; justify-content:space-between; border-bottom:2px solid #1e3a8a; padding-bottom:15px; margin-bottom:30px;"><div style="display:flex; align-items:center; gap:10px;"><img src="logo1.jpeg" style="height:70px; border-radius:50%;"><img src="logo2.jpeg" style="height:60px; border-radius:5px;" onerror="this.style.display='none'"></div><div style="text-align:center;"><h2 style="font-weight:900; font-size:22px;">مجمع أشبال متيجة</h2><h3 style="color:#1e3a8a; font-weight:bold;">الشؤون القانونية</h3></div><div style="background:#f3f4f6; padding:12px; border-radius:8px;">رقم: <b style="color:#1e3a8a;">${ref}</b><br>تاريخ: <b>${new Date().toLocaleDateString()}</b></div></div><h3 style="text-align:center; font-weight:900; margin-bottom:30px;">تقرير: ${c.Title}</h3><div style="background:#f9fafb; padding:20px; border-radius:8px; margin-bottom:20px;"><b>تصنيف:</b> ${c.ComplaintType}<br><br><b>الوقائع:</b> ${c.Description}</div><div style="background:#fff; padding:20px; border-radius:8px; border:1px solid #e5e7eb;"><b>متابعة:</b> ${c.ProgressReports||'لا يوجد'}<br><br><b>قرار المصلحة:</b> ${c.LegalOpinion||'قيد الدراسة'}<br><br><b style="color:#166534;">قرار الإدارة:</b> ${c.AdminDecision||'لم يفصل'} (${c.Status})</div><br><br><div style="display:flex; justify-content:space-around; font-weight:bold;"><p style="border-top:1px solid #000; padding-top:10px;">الشؤون القانونية</p><p style="border-top:1px solid #000; padding-top:10px;">المدير العام</p></div></div>`;
             document.body.innerHTML = html; window.print(); location.reload();
         }
 
-        async function loadStats() {
-            const res = await fetch('/api/stats'); const data = await res.json();
-            if(data.success) {
-                document.getElementById('stat-total').textContent = data.stats.total;
-                document.getElementById('stat-accepted').textContent = data.stats.accepted || 0;
-                document.getElementById('stat-rejected').textContent = data.stats.rejected || 0;
-                document.getElementById('stat-pending').textContent = data.stats.pending || 0;
-            }
-        }
-
-        async function loadPublicLaws() {
-            const res = await fetch('/api/laws'); const data = await res.json();
-            let html = '';
-            data.laws.forEach(l => { html += `<div class="law-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition"><h3 class="font-bold text-xl text-blue-900 mb-2 border-b pb-2"><i class="fas fa-balance-scale ml-1"></i> ${l.LawType}</h3><p class="text-gray-700 law-text text-sm leading-relaxed whitespace-pre-wrap">${l.Content}</p></div>`; });
-            document.getElementById('public-laws-container').innerHTML = html || '<p class="text-center font-bold text-gray-500">لا توجد قوانين مسجلة حالياً.</p>';
-        }
-
-        async function loadAdminLaws() {
-            const res = await fetch('/api/laws'); const data = await res.json();
-            const role = JSON.parse(localStorage.getItem('user')).role;
-            let html = '';
-            
-            const titleEl = document.getElementById('laws-section-title');
-            if(role === 'legal') titleEl.innerHTML = '<i class="fas fa-gavel text-blue-600 ml-2"></i>تعديل المرجع القانوني (يظهر للعموم)';
-            else titleEl.innerHTML = '<i class="fas fa-gavel text-blue-600 ml-2"></i>الاطلاع على المرجع القانوني';
-
-            data.laws.forEach(l => { 
-                if (role === 'legal') {
-                    html += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm"><label class="font-bold block mb-3 text-blue-900">${l.LawType}</label><textarea rows="5" onblur="updateLaw('${l.LawType}', this.value)" class="w-full border p-3 rounded-lg focus:border-blue-500 outline-none">${l.Content}</textarea></div>`; 
-                } else {
-                    html += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm"><label class="font-bold block mb-3 text-blue-900">${l.LawType}</label><div class="w-full p-3 bg-gray-200 text-gray-700 rounded-lg whitespace-pre-wrap text-sm">${l.Content || 'لا توجد نصوص مسجلة'}</div></div>`;
-                }
-            });
-            document.getElementById('admin-laws-container').innerHTML = html;
-        }
-
-        function searchPublicLaws() {
-            let input = document.getElementById("publicSearch").value.toLowerCase(); let cards = document.getElementsByClassName("law-card");
-            for (let i = 0; i < cards.length; i++) { let text = cards[i].querySelector(".law-text").innerText.toLowerCase(); cards[i].style.display = text.includes(input) ? "" : "none"; }
-        }
+        async function loadStats() { const res = await fetch('/api/stats'); const data = await res.json(); if(data.success) { document.getElementById('stat-total').textContent = data.stats.total; document.getElementById('stat-accepted').textContent = data.stats.accepted || 0; document.getElementById('stat-rejected').textContent = data.stats.rejected || 0; document.getElementById('stat-pending').textContent = data.stats.pending || 0; } }
+        async function loadPublicLaws() { const res = await fetch('/api/laws'); const data = await res.json(); let html = ''; data.laws.forEach(l => { html += `<div class="law-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition"><h3 class="font-bold text-xl text-blue-900 mb-2 border-b pb-2"><i class="fas fa-balance-scale ml-1"></i> ${l.LawType}</h3><p class="text-gray-700 law-text text-sm leading-relaxed whitespace-pre-wrap">${l.Content}</p></div>`; }); document.getElementById('public-laws-container').innerHTML = html || '<p class="text-center font-bold text-gray-500">لا توجد قوانين مسجلة.</p>'; }
+        async function loadAdminLaws() { const res = await fetch('/api/laws'); const data = await res.json(); const role = JSON.parse(localStorage.getItem('user')).role; let html = ''; const titleEl = document.getElementById('laws-section-title'); if(role === 'legal') titleEl.innerHTML = '<i class="fas fa-scale-balanced text-blue-600 ml-2"></i>تعديل المرجع القانوني (يظهر للعموم)'; else titleEl.innerHTML = '<i class="fas fa-scale-balanced text-blue-600 ml-2"></i>الاطلاع على المرجع القانوني'; data.laws.forEach(l => { if (role === 'legal') { html += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm"><label class="font-bold block mb-3 text-blue-900">${l.LawType}</label><textarea rows="5" onblur="updateLaw('${l.LawType}', this.value)" class="w-full border p-3 rounded-lg focus:border-blue-500 outline-none">${l.Content}</textarea></div>`; } else { html += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm"><label class="font-bold block mb-3 text-blue-900">${l.LawType}</label><div class="w-full p-3 bg-gray-200 text-gray-700 rounded-lg whitespace-pre-wrap text-sm">${l.Content || 'لا توجد نصوص'}</div></div>`; } }); document.getElementById('admin-laws-container').innerHTML = html; }
+        function searchPublicLaws() { let input = document.getElementById("publicSearch").value.toLowerCase(); let cards = document.getElementsByClassName("law-card"); for (let i = 0; i < cards.length; i++) { let text = cards[i].querySelector(".law-text").innerText.toLowerCase(); cards[i].style.display = text.includes(input) ? "" : "none"; } }
         async function updateLaw(type, content) { await fetch('/api/laws', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({type, content}) }); }
 
         async function loadLawyers() { const res = await fetch('/api/lawyers'); const data = await res.json(); const sel = document.getElementById('lawyer-select'); const tb = document.getElementById('lawyers-table-body'); if(sel) sel.innerHTML = '<option value="">-- اختر المحامي --</option>'; if(tb) tb.innerHTML = ''; data.lawyers.forEach(l => { if(sel) sel.innerHTML += `<option value="${l.LawyerID}">${l.FullName}</option>`; if(tb) tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 font-bold">${l.FullName}</td><td class="p-3" dir="ltr">${l.PhoneNumber}</td><td class="p-3 text-gray-500" dir="ltr">${l.Email || '-'}</td><td class="p-3 text-center"><button onclick="deleteLawyer(${l.LawyerID})" class="bg-red-100 text-red-700 px-3 rounded"><i class="fas fa-trash"></i></button></td></tr>`; }); }
         async function submitLawyer(e) { e.preventDefault(); await fetch('/api/lawyers', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fullName: document.getElementById('lawyer-name').value, email: document.getElementById('lawyer-email').value, phone: document.getElementById('lawyer-phone').value}) }); e.target.reset(); loadLawyers(); alert('✅ تم حفظ المحامي'); }
         async function deleteLawyer(id) { if(confirm('حذف؟')) { await fetch(`/api/lawyers/${id}`, { method: 'DELETE' }); loadLawyers(); } }
-        async function submitContract(e) { e.preventDefault(); const fd = new FormData(e.target); fd.append('createdBy', JSON.parse(localStorage.getItem('user')).fullName); const btn = e.target.querySelector('button[type="submit"]'); btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري الإرسال...'; btn.disabled = true; await fetch('/api/contracts', { method: 'POST', body: fd }); e.target.reset(); btn.innerHTML = '<i class="fas fa-paper-plane ml-2"></i>حفظ وإرسال الإيميل للمحامي'; btn.disabled = false; alert('✅ تم تسجيل العقد وإرساله للإيميل بنجاح!'); }
+        async function submitContract(e) { e.preventDefault(); const fd = new FormData(e.target); fd.append('createdBy', JSON.parse(localStorage.getItem('user')).fullName); const btn = e.target.querySelector('button[type="submit"]'); btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري الإرسال...'; btn.disabled = true; await fetch('/api/contracts', { method: 'POST', body: fd }); e.target.reset(); btn.innerHTML = '<i class="fas fa-paper-plane ml-2"></i>حفظ وإرسال الإيميل'; btn.disabled = false; alert('✅ تم الإرسال!'); }
 
         async function loadInquiries() { const res = await fetch('/api/inquiries'); const data = await res.json(); const role = JSON.parse(localStorage.getItem('user')).role; const tbody = document.getElementById('inquiries-table-body'); if(tbody) tbody.innerHTML = ''; const form = document.getElementById('inquiry-form'); if(form) form.style.display = (role === 'admin') ? 'none' : 'block'; data.inquiries.forEach(i => { let adminSection = i.AdminReply ? `<div class="mt-1 p-2 bg-green-50 text-green-900 text-sm font-bold">توجيه: ${i.AdminReply}</div>` : `<span class="text-xs bg-yellow-100 text-yellow-800 px-2 rounded mt-1">قيد الانتظار</span>`; let btn = (role === 'admin' && !i.AdminReply) ? `<button onclick="replyInquiry(${i.InquiryID})" class="bg-green-600 text-white px-2 py-1 rounded text-xs mt-1">رد</button>` : ''; tbody.innerHTML += `<tr class="border-b"><td class="p-4 font-bold">${i.Title}<br><span class="font-normal text-sm">${i.Content}</span>${adminSection}</td><td class="p-4">${i.CreatedBy}</td><td class="p-4">${btn}</td></tr>`; }); }
         async function submitInquiry(e) { e.preventDefault(); const u = JSON.parse(localStorage.getItem('user')); await fetch('/api/inquiries', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({title: document.getElementById('inq-title').value, content: document.getElementById('inq-content').value, createdBy: u.fullName}) }); e.target.reset(); loadInquiries(); alert('تم'); }
@@ -394,16 +380,7 @@
         async function addUser(e) { e.preventDefault(); await fetch('/api/users', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({fullName: document.getElementById('u-name').value, username: document.getElementById('u-user').value, password: document.getElementById('u-pass').value, role: document.getElementById('u-role').value}) }); loadUsers(); e.target.reset(); }
         async function deleteUser(id) { await fetch(`/api/users/${id}`, {method:'DELETE'}); loadUsers(); }
 
-        window.onload = () => { 
-            if(localStorage.getItem('user')) {
-                document.getElementById('login-modal').classList.add('hidden');
-                initDashboard(); 
-            } else {
-                document.getElementById('public-screen').classList.remove('hidden');
-                loadPublicLaws();
-            }
-        };
-
+        window.onload = () => { if(localStorage.getItem('user')) { document.getElementById('login-modal').classList.add('hidden'); initDashboard(); } else { document.getElementById('public-screen').classList.remove('hidden'); loadPublicLaws(); } };
         async function checkNotifications() { const user = JSON.parse(localStorage.getItem('user')); if (!user) return; try { const res = await fetch('/api/notifications/count'); const data = await res.json(); if (data.count > lastNotifCount && lastNotifCount !== 0) { document.getElementById('toast-notification').classList.remove('hidden', 'translate-y-24', 'opacity-0'); setTimeout(() => document.getElementById('toast-notification').classList.add('hidden', 'translate-y-24', 'opacity-0'), 5000); loadComplaints(); if(user.role === 'admin') loadStats(); } lastNotifCount = data.count; const badge = document.getElementById('notif-count'); badge.textContent = data.count; if(data.count === 0) badge.classList.add('hidden'); else badge.classList.remove('hidden'); } catch(e) {} }
         async function backupDatabase() { try { alert('جاري التجهيز...'); const res = await fetch('/api/backup', { method: 'GET' }); if (res.ok) { const blob = await res.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `Backup_Cadets.json`; document.body.appendChild(a); a.click(); a.remove(); } } catch (e) {} }
         function searchTable() { let input = document.getElementById("searchInput").value.toUpperCase(); let tr = document.getElementById("complaintsTable").getElementsByTagName("tr"); for (let i = 1; i < tr.length; i++) { let td = tr[i].getElementsByTagName("td")[0]; if (td) tr[i].style.display = (td.textContent || td.innerText).toUpperCase().indexOf(input) > -1 ? "" : "none"; } }
