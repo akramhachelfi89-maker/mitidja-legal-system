@@ -18,7 +18,7 @@ const db = mysql.createPool({
     connectionLimit: 3,
     host: 'bdj70168ffojqcl967nx-mysql.services.clever-cloud.com',
     user: 'urc79o1ctr3bctj4', 
-    password: 'lWO2Nxj2VAJxCZ7K2KIL', 
+    password: 'lWO2Nxj2VAJxCZ7K2KIL',
     database: 'bdj70168ffojqcl967nx',
     dateStrings: true
 });
