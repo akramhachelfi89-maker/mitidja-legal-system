@@ -4,7 +4,6 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs'); 
-const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(cors());
@@ -24,18 +23,9 @@ const db = mysql.createPool({
     dateStrings: true
 });
 
-// إعداد مرسل الإيميلات (Nodemailer)
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'votre.email@gmail.com', // ⚠️ إيميل المؤسسة
-        pass: 'mot_de_passe_application' // ⚠️ كلمة مرور التطبيقات
-    }
-});
-
 const upload = multer({ storage: multer.diskStorage({ destination: (req, file, cb) => cb(null, 'uploads/'), filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)) }) });
 
-// --- جديد: واجهة الذكاء الاصطناعي (AI) ---
+// --- واجهة الذكاء الاصطناعي (AI) ---
 app.post('/api/ai-consult', async (req, res) => {
     const apiKey = 'YOUR_GEMINI_API_KEY'; // ⚠️ حط مفتاح Google Gemini API هنا
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -65,7 +55,7 @@ app.put('/api/complaints/:id/resolve', (req, res) => { db.query(`UPDATE complain
 app.put('/api/complaints/:id/reassign', (req, res) => { db.query(`UPDATE complaints SET AssignedTo = ?, Status = 'محولة إداريا' WHERE ComplaintID = ?`, [req.body.assignee, req.params.id], err => res.json({ success: !err })); });
 app.put('/api/complaints/:id/admin', (req, res) => { db.query('UPDATE complaints SET AdminDecision = ?, Status = ? WHERE ComplaintID = ?', [req.body.adminDecision, req.body.status, req.params.id], err => res.json({ success: !err })); });
 
-// المحامين والعقود والإيميل
+// المحامين والعقود (تم تعطيل الإيميل مؤقتاً)
 app.get('/api/lawyers', (req, res) => { db.query('SELECT * FROM lawyers', (err, results) => res.json({ success: true, lawyers: results || [] })); });
 app.post('/api/lawyers', (req, res) => { db.query('INSERT INTO lawyers (FullName, Email, PhoneNumber) VALUES (?, ?, ?)', [req.body.fullName, req.body.email, req.body.phone], err => res.json({ success: !err })); });
 app.delete('/api/lawyers/:id', (req, res) => { db.query('DELETE FROM lawyers WHERE LawyerID = ?', [req.params.id], err => res.json({ success: !err })); });
@@ -75,12 +65,6 @@ app.post('/api/contracts', upload.single('file'), (req, res) => {
     const { employeeName, contractType, lawyerId, createdBy } = req.body;
     db.query('INSERT INTO contracts (EmployeeName, ContractType, FilePath, LawyerID, CreatedBy_FullName) VALUES (?, ?, ?, ?, ?)', [employeeName, contractType, fp, lawyerId, createdBy], (err) => {
         if (err) return res.json({ success: false });
-        db.query('SELECT Email, FullName FROM lawyers WHERE LawyerID = ?', [lawyerId], (err2, lawyerRes) => {
-            if (!err2 && lawyerRes.length > 0 && lawyerRes[0].Email && req.file) {
-                const mailOptions = { from: 'votre.email@gmail.com', to: lawyerRes[0].Email, subject: `إشعار بعقد جديد: ${contractType} - أشبال متيجة`, text: `الأستاذ(ة) ${lawyerRes[0].FullName}،\n\nتجدون مرفقاً طيه نسخة من العقد الخاص بـ (${employeeName}) للمراجعة والمتابعة.\n\nنظام إدارة الشؤون القانونية.`, attachments: [{ filename: req.file.originalname, path: fp }] };
-                transporter.sendMail(mailOptions).catch(console.error); 
-            }
-        });
         res.json({ success: true }); 
     }); 
 });
