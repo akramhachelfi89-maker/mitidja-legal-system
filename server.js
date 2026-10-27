@@ -23,6 +23,10 @@ const db = mysql.createPool({
     dateStrings: true
 });
 
+// تحديث قاعدة البيانات أوتوماتيكياً (إضافة أعمدة الملفات إذا لم تكن موجودة)
+db.query('ALTER TABLE inquiries ADD COLUMN FilePath VARCHAR(255) NULL', (err) => { if(!err) console.log('✅ تم إضافة عمود FilePath للاستفسارات'); });
+db.query('ALTER TABLE warnings ADD COLUMN FilePath VARCHAR(255) NULL', (err) => { if(!err) console.log('✅ تم إضافة عمود FilePath للإنذارات'); });
+
 const upload = multer({ storage: multer.diskStorage({ destination: (req, file, cb) => cb(null, 'uploads/'), filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)) }) });
 
 // --- واجهة الذكاء الاصطناعي (AI) ---
@@ -77,11 +81,20 @@ app.get('/api/laws', (req, res) => { db.query('SELECT * FROM laws', (err, result
 app.put('/api/laws', (req, res) => { db.query('UPDATE laws SET Content = ? WHERE LawType = ?', [req.body.content, req.body.type], err => res.json({ success: !err })); });
 app.get('/api/backup', (req, res) => { db.query('SELECT * FROM complaints', (err, complaints) => { if (err) return res.status(500).json({ success: false }); res.setHeader('Content-Type', 'application/json'); res.setHeader('Content-Disposition', 'attachment; filename="Sauvegarde_Cadets.json"'); res.send(JSON.stringify({ date_sauvegarde: new Date(), donnees: complaints }, null, 2)); }); });
 app.get('/api/notifications/count', (req, res) => { db.query('SELECT COUNT(*) as count FROM complaints WHERE Status = "تسجيل أولي"', (err, r) => res.json({ count: err ? 0 : r[0].count })); });
+
+// --- جديد: الاستفسارات والإنذارات مع الملفات المرفقة ---
 app.get('/api/inquiries', (req, res) => { db.query('SELECT * FROM inquiries ORDER BY InquiryID DESC', (err, results) => res.json({ success: true, inquiries: results || [] })); });
-app.post('/api/inquiries', (req, res) => { db.query('INSERT INTO inquiries (Title, Content, CreatedBy) VALUES (?, ?, ?)', [req.body.title, req.body.content, req.body.createdBy], err => res.json({ success: !err })); });
+app.post('/api/inquiries', upload.single('file'), (req, res) => { 
+    const fp = req.file ? 'uploads/' + req.file.filename : null; 
+    db.query('INSERT INTO inquiries (Title, Content, FilePath, CreatedBy) VALUES (?, ?, ?, ?)', [req.body.title, req.body.content, fp, req.body.createdBy], err => res.json({ success: !err })); 
+});
 app.put('/api/inquiries/:id/admin', (req, res) => { db.query('UPDATE inquiries SET AdminReply = ?, Status = "تم الرد" WHERE InquiryID = ?', [req.body.reply, req.params.id], err => res.json({ success: !err })); });
+
 app.get('/api/warnings', (req, res) => { db.query('SELECT * FROM warnings ORDER BY WarningID DESC', (err, results) => res.json({ success: true, warnings: results || [] })); });
-app.post('/api/warnings', (req, res) => { db.query('INSERT INTO warnings (EmployeeName, Reason, CreatedBy) VALUES (?, ?, ?)', [req.body.employeeName, req.body.reason, req.body.createdBy], err => res.json({ success: !err })); });
+app.post('/api/warnings', upload.single('file'), (req, res) => { 
+    const fp = req.file ? 'uploads/' + req.file.filename : null; 
+    db.query('INSERT INTO warnings (EmployeeName, Reason, FilePath, CreatedBy) VALUES (?, ?, ?, ?)', [req.body.employeeName, req.body.reason, fp, req.body.createdBy], err => res.json({ success: !err })); 
+});
 app.put('/api/warnings/:id/admin', (req, res) => { db.query('UPDATE warnings SET AdminDecision = ?, Status = "مؤكد" WHERE WarningID = ?', [req.body.decision, req.params.id], err => res.json({ success: !err })); });
 
 const PORT = process.env.PORT || 3000;
