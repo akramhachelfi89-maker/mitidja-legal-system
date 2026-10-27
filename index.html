@@ -12,16 +12,10 @@
         body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
         .view-section { display: none; }
         .view-section.active { display: block; }
-        
         .status-safe { background-color: #f0fdf4 !important; border-right: 5px solid #10b981 !important; }
         .status-warning { background-color: #fffbeb !important; border-right: 5px solid #f97316 !important; } 
         .status-danger { background-color: #fef2f2 !important; border-right: 5px solid #ef4444 !important; } 
-
-        @media print { 
-            body { background-color: white; } 
-            #sidebar, #topbar, .no-print { display: none !important; } 
-            #main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; } 
-        }
+        @media print { body { background-color: white; } #sidebar, #topbar, .no-print { display: none !important; } #main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; } }
     </style>
 </head>
 <body class="text-gray-800">
@@ -122,28 +116,46 @@
                     </table>
                 </div>
 
+                <!-- واجهة الاستفسارات المحدثة -->
                 <div id="view-inquiries" class="view-section bg-white p-6 rounded-2xl shadow mb-6 border-t-4 border-yellow-500">
                     <h3 class="text-xl font-bold mb-6 border-b pb-3"><i class="fas fa-question-circle text-yellow-500 ml-2"></i>إدارة الاستفسارات</h3>
-                    <form id="inquiry-form" onsubmit="submitInquiry(event)" class="mb-8 border border-gray-200 p-5 rounded-xl bg-gray-50">
-                        <input type="text" id="inq-title" placeholder="الموضوع" class="w-full border p-2.5 rounded-lg mb-3" required>
-                        <textarea id="inq-content" placeholder="التفاصيل..." rows="3" class="w-full border p-2.5 rounded-lg mb-3" required></textarea>
-                        <button type="submit" class="bg-yellow-500 text-white font-bold px-6 py-2 rounded-lg">تسجيل</button>
+                    
+                    <form id="inquiry-form" onsubmit="submitInquiry(event)" enctype="multipart/form-data" class="mb-8 border border-gray-200 p-5 rounded-xl bg-gray-50">
+                        <input type="text" name="title" placeholder="الموضوع" class="w-full border p-2.5 rounded-lg mb-3" required>
+                        <textarea name="content" placeholder="التفاصيل..." rows="3" class="w-full border p-2.5 rounded-lg mb-3" required></textarea>
+                        
+                        <div class="mb-3">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">المرفقات (صورة أو PDF)</label>
+                            <input type="file" name="file" class="w-full border p-2 rounded-lg bg-white text-sm" accept=".pdf,.png,.jpg,.jpeg">
+                        </div>
+                        
+                        <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-6 py-2 rounded-lg shadow transition">تسجيل الاستفسار</button>
                     </form>
+
                     <table class="w-full text-right border-collapse mt-4">
-                        <thead><tr class="bg-gray-200 text-gray-700"><th class="p-3 border-b w-1/2">الموضوع</th><th class="p-3 border-b">المُسجل</th><th class="p-3 border-b">الإجراءات</th></tr></thead>
+                        <thead><tr class="bg-gray-200 text-gray-700"><th class="p-3 border-b w-1/2">الموضوع والمرفقات</th><th class="p-3 border-b">المُسجل</th><th class="p-3 border-b">الإجراءات</th></tr></thead>
                         <tbody id="inquiries-table-body" class="text-sm"></tbody>
                     </table>
                 </div>
 
+                <!-- واجهة الإنذارات المحدثة -->
                 <div id="view-warnings" class="view-section bg-white p-6 rounded-2xl shadow mb-6 border-t-4 border-red-600">
                     <h3 class="text-xl font-bold mb-6 border-b pb-3"><i class="fas fa-exclamation-triangle text-red-600 ml-2"></i>إدارة الإنذارات</h3>
-                    <form id="warning-form" onsubmit="submitWarning(event)" class="mb-8 border border-gray-200 p-5 rounded-xl bg-gray-50">
-                        <input type="text" id="warn-emp" placeholder="الموظف المعني" class="w-full border p-2.5 rounded-lg mb-3" required>
-                        <textarea id="warn-reason" placeholder="سبب الإنذار..." rows="3" class="w-full border p-2.5 rounded-lg mb-3" required></textarea>
-                        <button type="submit" class="bg-red-600 text-white font-bold px-6 py-2 rounded-lg">تسجيل الإنذار</button>
+                    
+                    <form id="warning-form" onsubmit="submitWarning(event)" enctype="multipart/form-data" class="mb-8 border border-gray-200 p-5 rounded-xl bg-gray-50">
+                        <input type="text" name="employeeName" placeholder="الموظف المعني" class="w-full border p-2.5 rounded-lg mb-3" required>
+                        <textarea name="reason" placeholder="سبب الإنذار..." rows="3" class="w-full border p-2.5 rounded-lg mb-3" required></textarea>
+                        
+                        <div class="mb-3">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">دليل الإنذار (مرفق)</label>
+                            <input type="file" name="file" class="w-full border p-2 rounded-lg bg-white text-sm" accept=".pdf,.png,.jpg,.jpeg">
+                        </div>
+
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2 rounded-lg shadow transition">تسجيل الإنذار</button>
                     </form>
+
                     <table class="w-full text-right border-collapse mt-4">
-                        <thead><tr class="bg-gray-200 text-gray-700"><th class="p-3 border-b w-1/4">الموظف</th><th class="p-3 border-b w-1/2">التفاصيل والقرار</th><th class="p-3 border-b">الإجراءات</th></tr></thead>
+                        <thead><tr class="bg-gray-200 text-gray-700"><th class="p-3 border-b w-1/4">الموظف</th><th class="p-3 border-b w-1/2">التفاصيل والدليل</th><th class="p-3 border-b">الإجراءات</th></tr></thead>
                         <tbody id="warnings-table-body" class="text-sm"></tbody>
                     </table>
                 </div>
@@ -157,13 +169,13 @@
                         <thead><tr class="bg-gray-200"><th class="p-3">الاسم</th><th class="p-3">الهاتف</th><th class="p-3">الإيميل</th><th class="p-3 text-center">إجراء</th></tr></thead>
                         <tbody id="lawyers-table-body" class="text-sm"></tbody>
                     </table>
-                    <div class="p-5 bg-gray-50 border border-gray-200 rounded-xl"><h4 class="font-bold mb-4 text-indigo-900">تسجيل وإرسال عقد جديد (عبر الإيميل)</h4>
-                        <form onsubmit="submitContract(event)" class="grid grid-cols-2 gap-4">
+                    <div class="p-5 bg-gray-50 border border-gray-200 rounded-xl"><h4 class="font-bold mb-4 text-indigo-900">تسجيل وإرسال عقد جديد</h4>
+                        <form onsubmit="submitContract(event)" enctype="multipart/form-data" class="grid grid-cols-2 gap-4">
                             <div><label class="block text-sm font-bold mb-1">الطرف الثاني</label><input type="text" name="employeeName" class="border p-2 w-full rounded" required></div>
                             <div><label class="block text-sm font-bold mb-1">نوع العقد</label><select name="contractType" class="border p-2 w-full rounded"><option>عقد عمل</option><option>عقد تموين</option></select></div>
-                            <div><label class="block text-sm font-bold mb-1">المحامي (يُرسل إليه أوتوماتيكياً)</label><select name="lawyerId" id="lawyer-select" class="border p-2 w-full rounded" required></select></div>
+                            <div><label class="block text-sm font-bold mb-1">المحامي المعني</label><select name="lawyerId" id="lawyer-select" class="border p-2 w-full rounded" required></select></div>
                             <div><label class="block text-sm font-bold mb-1">ملف العقد (PDF)</label><input type="file" name="file" class="border p-1 w-full bg-white rounded" required></div>
-                            <button type="submit" class="col-span-2 bg-indigo-600 text-white font-bold py-3 rounded mt-2 shadow"><i class="fas fa-paper-plane ml-2"></i>حفظ وإرسال الإيميل للمحامي</button>
+                            <button type="submit" class="col-span-2 bg-indigo-600 text-white font-bold py-3 rounded mt-2 shadow"><i class="fas fa-paper-plane ml-2"></i>تسجيل العقد</button>
                         </form>
                     </div>
                 </div>
@@ -266,7 +278,6 @@
             allComplaints.forEach(c => {
                 const cID = c.ComplaintID; const rowClass = getRowColorClass(c); 
                 
-                // الحجب الذكي
                 let displayDesc = c.Description;
                 let displayFile = c.FilePath ? `<br><a href="/${c.FilePath}" target="_blank" class="text-blue-600 font-bold text-sm mt-2 inline-block"><i class="fas fa-paperclip"></i> تحميل المرفق</a>` : '';
                 let aiBox = '';
@@ -276,7 +287,6 @@
                     displayFile = ''; 
                 } else {
                     displayDesc = `<p class="text-sm mt-2 text-gray-600 leading-relaxed">${displayDesc}</p>`;
-                    // جديد: مربع الذكاء الاصطناعي (يظهر للمسؤولة فقط ومخفي عن الطباعة no-print)
                     if(role === 'legal' && c.IsRead) {
                         aiBox = `<div id="ai-box-${cID}" class="hidden no-print mt-3 p-3 bg-purple-50 border-r-4 border-purple-600 rounded-l shadow-sm text-sm"><b class="text-purple-900"><i class="fas fa-robot ml-1"></i> رأي المساعد الذكي (سري):</b><div id="ai-content-${cID}" class="mt-1 text-gray-800 whitespace-pre-wrap font-bold"></div></div>`;
                     }
@@ -299,7 +309,6 @@
                 if (role === 'legal') {
                     if (!c.IsRead) actions += `<button onclick="startStudy(${cID})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-sm w-full shadow-lg transition animate-pulse"><i class="fas fa-unlock-alt ml-1"></i> بدء دراسة الملف<br><span class="text-xs font-normal opacity-75">(تفعيل مهلة 7 أيام)</span></button>`;
                     else if (c.Status !== 'تم الحل' && c.Status !== 'مقبولة' && c.Status !== 'مرفوضة') {
-                        // جديد: زر الذكاء الاصطناعي
                         actions += `<div class="flex flex-col gap-2 w-full mb-2">
                             <button onclick="getAIAdvice(${cID}, event)" class="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg text-sm shadow font-bold mb-1"><i class="fas fa-magic ml-1"></i> استشارة الذكاء الاصطناعي (سرية)</button>
                             <button onclick="addProgress(${cID})" class="bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg text-sm shadow font-bold"><i class="fas fa-pen ml-1"></i> تقرير متابعة</button>
@@ -320,27 +329,20 @@
             });
         }
 
-        // --- دالة طلب المساعدة من الذكاء الاصطناعي ---
         async function getAIAdvice(id, event) {
-            const btn = event.currentTarget;
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-1"></i> جاري التحليل...';
-            btn.disabled = true;
-            
+            const btn = event.currentTarget; const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-1"></i> جاري التحليل...'; btn.disabled = true;
             const c = allComplaints.find(x => x.ComplaintID === id);
             try {
                 const res = await fetch('/api/ai-consult', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ description: c.Description }) });
                 const data = await res.json();
-                if (data.success) {
-                    document.getElementById(`ai-box-${id}`).classList.remove('hidden');
-                    document.getElementById(`ai-content-${id}`).innerHTML = data.opinion;
-                } else { alert('❌ ' + data.error); }
+                if (data.success) { document.getElementById(`ai-box-${id}`).classList.remove('hidden'); document.getElementById(`ai-content-${id}`).innerHTML = data.opinion; } 
+                else { alert('❌ ' + data.error); }
             } catch(e) { alert('حدث خطأ في الاتصال بالذكاء الاصطناعي'); }
-            
             btn.innerHTML = originalHtml; btn.disabled = false;
         }
         
-        async function startStudy(id) { if(confirm('سيتم كشف محتوى الملف وتفعيل مهلة 7 أيام قانونية. متأكد؟')) { await fetch(`/api/complaints/${id}/start`, { method: 'PUT' }); loadComplaints(); } }
+        async function startStudy(id) { if(confirm('سيتم كشف محتوى الملف وتفعيل مهلة 7 أيام. متأكد؟')) { await fetch(`/api/complaints/${id}/start`, { method: 'PUT' }); loadComplaints(); } }
         async function addProgress(id) { const r = prompt('التقرير:'); if(r) { await fetch(`/api/complaints/${id}/progress`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({report: r}) }); loadComplaints(); } }
         async function extendDeadline(id) { if(confirm('تمديد 7 أيام؟')) { await fetch(`/api/complaints/${id}/extend`, { method: 'PUT' }); loadComplaints(); } }
         async function resolveComplaint(id) { const op = prompt('الحل القانوني:'); if(op) { await fetch(`/api/complaints/${id}/resolve`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({opinion: op}) }); loadComplaints(); } }
@@ -352,28 +354,28 @@
         function printReport(id) {
             const c = allComplaints.find(x => x.ComplaintID === id);
             const ref = `AM-${new Date().getFullYear()}-${c.ComplaintID.toString().padStart(4, '0')}`;
-            // الكود تاع الطباعة مافيهش نهائيا مربع الذكاء الاصطناعي (معزول تماماً)
             const html = `<div dir="rtl" style="font-family: Tajawal; padding:40px; color:#1f2937;"><div style="display:flex; justify-content:space-between; border-bottom:2px solid #1e3a8a; padding-bottom:15px; margin-bottom:30px;"><div style="display:flex; align-items:center; gap:10px;"><img src="logo1.jpeg" style="height:70px; border-radius:50%;"><img src="logo2.jpeg" style="height:60px; border-radius:5px;" onerror="this.style.display='none'"></div><div style="text-align:center;"><h2 style="font-weight:900; font-size:22px;">مجمع أشبال متيجة</h2><h3 style="color:#1e3a8a; font-weight:bold;">الشؤون القانونية</h3></div><div style="background:#f3f4f6; padding:12px; border-radius:8px;">رقم: <b style="color:#1e3a8a;">${ref}</b><br>تاريخ: <b>${new Date().toLocaleDateString()}</b></div></div><h3 style="text-align:center; font-weight:900; margin-bottom:30px;">تقرير: ${c.Title}</h3><div style="background:#f9fafb; padding:20px; border-radius:8px; margin-bottom:20px;"><b>تصنيف:</b> ${c.ComplaintType}<br><br><b>الوقائع:</b> ${c.Description}</div><div style="background:#fff; padding:20px; border-radius:8px; border:1px solid #e5e7eb;"><b>متابعة:</b> ${c.ProgressReports||'لا يوجد'}<br><br><b>قرار المصلحة:</b> ${c.LegalOpinion||'قيد الدراسة'}<br><br><b style="color:#166534;">قرار الإدارة:</b> ${c.AdminDecision||'لم يفصل'} (${c.Status})</div><br><br><div style="display:flex; justify-content:space-around; font-weight:bold;"><p style="border-top:1px solid #000; padding-top:10px;">الشؤون القانونية</p><p style="border-top:1px solid #000; padding-top:10px;">المدير العام</p></div></div>`;
             document.body.innerHTML = html; window.print(); location.reload();
         }
 
         async function loadStats() { const res = await fetch('/api/stats'); const data = await res.json(); if(data.success) { document.getElementById('stat-total').textContent = data.stats.total; document.getElementById('stat-accepted').textContent = data.stats.accepted || 0; document.getElementById('stat-rejected').textContent = data.stats.rejected || 0; document.getElementById('stat-pending').textContent = data.stats.pending || 0; } }
         async function loadPublicLaws() { const res = await fetch('/api/laws'); const data = await res.json(); let html = ''; data.laws.forEach(l => { html += `<div class="law-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition"><h3 class="font-bold text-xl text-blue-900 mb-2 border-b pb-2"><i class="fas fa-balance-scale ml-1"></i> ${l.LawType}</h3><p class="text-gray-700 law-text text-sm leading-relaxed whitespace-pre-wrap">${l.Content}</p></div>`; }); document.getElementById('public-laws-container').innerHTML = html || '<p class="text-center font-bold text-gray-500">لا توجد قوانين مسجلة.</p>'; }
-        async function loadAdminLaws() { const res = await fetch('/api/laws'); const data = await res.json(); const role = JSON.parse(localStorage.getItem('user')).role; let html = ''; const titleEl = document.getElementById('laws-section-title'); if(role === 'legal') titleEl.innerHTML = '<i class="fas fa-scale-balanced text-blue-600 ml-2"></i>تعديل المرجع القانوني (يظهر للعموم)'; else titleEl.innerHTML = '<i class="fas fa-scale-balanced text-blue-600 ml-2"></i>الاطلاع على المرجع القانوني'; data.laws.forEach(l => { if (role === 'legal') { html += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm"><label class="font-bold block mb-3 text-blue-900">${l.LawType}</label><textarea rows="5" onblur="updateLaw('${l.LawType}', this.value)" class="w-full border p-3 rounded-lg focus:border-blue-500 outline-none">${l.Content}</textarea></div>`; } else { html += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm"><label class="font-bold block mb-3 text-blue-900">${l.LawType}</label><div class="w-full p-3 bg-gray-200 text-gray-700 rounded-lg whitespace-pre-wrap text-sm">${l.Content || 'لا توجد نصوص'}</div></div>`; } }); document.getElementById('admin-laws-container').innerHTML = html; }
+        async function loadAdminLaws() { const res = await fetch('/api/laws'); const data = await res.json(); const role = JSON.parse(localStorage.getItem('user')).role; let html = ''; const titleEl = document.getElementById('laws-section-title'); if(role === 'legal') titleEl.innerHTML = '<i class="fas fa-scale-balanced text-blue-600 ml-2"></i>تعديل المرجع القانوني'; else titleEl.innerHTML = '<i class="fas fa-scale-balanced text-blue-600 ml-2"></i>الاطلاع على المرجع القانوني'; data.laws.forEach(l => { if (role === 'legal') { html += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm"><label class="font-bold block mb-3 text-blue-900">${l.LawType}</label><textarea rows="5" onblur="updateLaw('${l.LawType}', this.value)" class="w-full border p-3 rounded-lg focus:border-blue-500 outline-none">${l.Content}</textarea></div>`; } else { html += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm"><label class="font-bold block mb-3 text-blue-900">${l.LawType}</label><div class="w-full p-3 bg-gray-200 text-gray-700 rounded-lg whitespace-pre-wrap text-sm">${l.Content || 'لا توجد نصوص'}</div></div>`; } }); document.getElementById('admin-laws-container').innerHTML = html; }
         function searchPublicLaws() { let input = document.getElementById("publicSearch").value.toLowerCase(); let cards = document.getElementsByClassName("law-card"); for (let i = 0; i < cards.length; i++) { let text = cards[i].querySelector(".law-text").innerText.toLowerCase(); cards[i].style.display = text.includes(input) ? "" : "none"; } }
         async function updateLaw(type, content) { await fetch('/api/laws', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({type, content}) }); }
 
         async function loadLawyers() { const res = await fetch('/api/lawyers'); const data = await res.json(); const sel = document.getElementById('lawyer-select'); const tb = document.getElementById('lawyers-table-body'); if(sel) sel.innerHTML = '<option value="">-- اختر المحامي --</option>'; if(tb) tb.innerHTML = ''; data.lawyers.forEach(l => { if(sel) sel.innerHTML += `<option value="${l.LawyerID}">${l.FullName}</option>`; if(tb) tb.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3 font-bold">${l.FullName}</td><td class="p-3" dir="ltr">${l.PhoneNumber}</td><td class="p-3 text-gray-500" dir="ltr">${l.Email || '-'}</td><td class="p-3 text-center"><button onclick="deleteLawyer(${l.LawyerID})" class="bg-red-100 text-red-700 px-3 rounded"><i class="fas fa-trash"></i></button></td></tr>`; }); }
         async function submitLawyer(e) { e.preventDefault(); await fetch('/api/lawyers', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fullName: document.getElementById('lawyer-name').value, email: document.getElementById('lawyer-email').value, phone: document.getElementById('lawyer-phone').value}) }); e.target.reset(); loadLawyers(); alert('✅ تم حفظ المحامي'); }
         async function deleteLawyer(id) { if(confirm('حذف؟')) { await fetch(`/api/lawyers/${id}`, { method: 'DELETE' }); loadLawyers(); } }
-        async function submitContract(e) { e.preventDefault(); const fd = new FormData(e.target); fd.append('createdBy', JSON.parse(localStorage.getItem('user')).fullName); const btn = e.target.querySelector('button[type="submit"]'); btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري الإرسال...'; btn.disabled = true; await fetch('/api/contracts', { method: 'POST', body: fd }); e.target.reset(); btn.innerHTML = '<i class="fas fa-paper-plane ml-2"></i>حفظ وإرسال الإيميل'; btn.disabled = false; alert('✅ تم الإرسال!'); }
+        async function submitContract(e) { e.preventDefault(); const fd = new FormData(e.target); fd.append('createdBy', JSON.parse(localStorage.getItem('user')).fullName); const btn = e.target.querySelector('button[type="submit"]'); btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري الإرسال...'; btn.disabled = true; await fetch('/api/contracts', { method: 'POST', body: fd }); e.target.reset(); btn.innerHTML = '<i class="fas fa-paper-plane ml-2"></i>تسجيل العقد'; btn.disabled = false; alert('✅ تم الإرسال بنجاح!'); }
 
-        async function loadInquiries() { const res = await fetch('/api/inquiries'); const data = await res.json(); const role = JSON.parse(localStorage.getItem('user')).role; const tbody = document.getElementById('inquiries-table-body'); if(tbody) tbody.innerHTML = ''; const form = document.getElementById('inquiry-form'); if(form) form.style.display = (role === 'admin') ? 'none' : 'block'; data.inquiries.forEach(i => { let adminSection = i.AdminReply ? `<div class="mt-1 p-2 bg-green-50 text-green-900 text-sm font-bold">توجيه: ${i.AdminReply}</div>` : `<span class="text-xs bg-yellow-100 text-yellow-800 px-2 rounded mt-1">قيد الانتظار</span>`; let btn = (role === 'admin' && !i.AdminReply) ? `<button onclick="replyInquiry(${i.InquiryID})" class="bg-green-600 text-white px-2 py-1 rounded text-xs mt-1">رد</button>` : ''; tbody.innerHTML += `<tr class="border-b"><td class="p-4 font-bold">${i.Title}<br><span class="font-normal text-sm">${i.Content}</span>${adminSection}</td><td class="p-4">${i.CreatedBy}</td><td class="p-4">${btn}</td></tr>`; }); }
-        async function submitInquiry(e) { e.preventDefault(); const u = JSON.parse(localStorage.getItem('user')); await fetch('/api/inquiries', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({title: document.getElementById('inq-title').value, content: document.getElementById('inq-content').value, createdBy: u.fullName}) }); e.target.reset(); loadInquiries(); alert('تم'); }
+        // --- دوال الاستفسارات والإنذارات (معدلة 100% لإرسال واستقبال الملفات) ---
+        async function loadInquiries() { const res = await fetch('/api/inquiries'); const data = await res.json(); const role = JSON.parse(localStorage.getItem('user')).role; const tbody = document.getElementById('inquiries-table-body'); if(tbody) tbody.innerHTML = ''; const form = document.getElementById('inquiry-form'); if(form) form.style.display = (role === 'admin') ? 'none' : 'block'; data.inquiries.forEach(i => { let adminSection = i.AdminReply ? `<div class="mt-1 p-2 bg-green-50 text-green-900 text-sm font-bold">توجيه: ${i.AdminReply}</div>` : `<span class="text-xs bg-yellow-100 text-yellow-800 px-2 rounded mt-1">قيد الانتظار</span>`; let btn = (role === 'admin' && !i.AdminReply) ? `<button onclick="replyInquiry(${i.InquiryID})" class="bg-green-600 text-white px-2 py-1 rounded text-xs mt-1">رد</button>` : ''; let fileLink = i.FilePath ? `<br><a href="/${i.FilePath}" target="_blank" class="text-blue-600 font-bold text-xs mt-2 inline-block"><i class="fas fa-paperclip"></i> تحميل المرفق</a>` : ''; tbody.innerHTML += `<tr class="border-b"><td class="p-4 font-bold">${i.Title}<br><span class="font-normal text-sm">${i.Content}</span>${fileLink}${adminSection}</td><td class="p-4">${i.CreatedBy}</td><td class="p-4">${btn}</td></tr>`; }); }
+        async function submitInquiry(e) { e.preventDefault(); const fd = new FormData(e.target); const u = JSON.parse(localStorage.getItem('user')); fd.append('createdBy', u.fullName); await fetch('/api/inquiries', { method: 'POST', body: fd }); e.target.reset(); loadInquiries(); alert('✅ تم تسجيل الاستفسار بنجاح!'); }
         async function replyInquiry(id) { const rep = prompt('الرد:'); if(rep) { await fetch(`/api/inquiries/${id}/admin`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({reply: rep}) }); loadInquiries(); } }
 
-        async function loadWarnings() { const res = await fetch('/api/warnings'); const data = await res.json(); const role = JSON.parse(localStorage.getItem('user')).role; const tbody = document.getElementById('warnings-table-body'); if(tbody) tbody.innerHTML = ''; const form = document.getElementById('warning-form'); if(form) form.style.display = (role === 'admin') ? 'none' : 'block'; data.warnings.forEach(w => { let adminSection = w.AdminDecision ? `<div class="mt-1 p-2 bg-red-50 text-red-900 text-sm font-bold">القرار: ${w.AdminDecision}</div>` : `<span class="text-xs bg-gray-200 px-2 rounded mt-1">للمعاينة</span>`; let btn = (role === 'admin' && !w.AdminDecision) ? `<button onclick="decideWarning(${w.WarningID})" class="bg-red-600 text-white px-2 py-1 rounded text-xs mt-1">تأكيد</button>` : ''; tbody.innerHTML += `<tr class="border-b"><td class="p-4 font-black text-red-700">${w.EmployeeName}</td><td class="p-4">${w.Reason}<br>${adminSection}</td><td class="p-4">${btn}</td></tr>`; }); }
-        async function submitWarning(e) { e.preventDefault(); const u = JSON.parse(localStorage.getItem('user')); await fetch('/api/warnings', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({employeeName: document.getElementById('warn-emp').value, reason: document.getElementById('warn-reason').value, createdBy: u.fullName}) }); e.target.reset(); loadWarnings(); alert('تم'); }
+        async function loadWarnings() { const res = await fetch('/api/warnings'); const data = await res.json(); const role = JSON.parse(localStorage.getItem('user')).role; const tbody = document.getElementById('warnings-table-body'); if(tbody) tbody.innerHTML = ''; const form = document.getElementById('warning-form'); if(form) form.style.display = (role === 'admin') ? 'none' : 'block'; data.warnings.forEach(w => { let adminSection = w.AdminDecision ? `<div class="mt-1 p-2 bg-red-50 text-red-900 text-sm font-bold">القرار: ${w.AdminDecision}</div>` : `<span class="text-xs bg-gray-200 px-2 rounded mt-1">للمعاينة</span>`; let btn = (role === 'admin' && !w.AdminDecision) ? `<button onclick="decideWarning(${w.WarningID})" class="bg-red-600 text-white px-2 py-1 rounded text-xs mt-1">تأكيد</button>` : ''; let fileLink = w.FilePath ? `<br><a href="/${w.FilePath}" target="_blank" class="text-red-600 font-bold text-xs mt-2 inline-block"><i class="fas fa-paperclip"></i> دليل الإنذار</a>` : ''; tbody.innerHTML += `<tr class="border-b"><td class="p-4 font-black text-red-700">${w.EmployeeName}</td><td class="p-4">${w.Reason}${fileLink}<br>${adminSection}</td><td class="p-4">${btn}</td></tr>`; }); }
+        async function submitWarning(e) { e.preventDefault(); const fd = new FormData(e.target); const u = JSON.parse(localStorage.getItem('user')); fd.append('createdBy', u.fullName); await fetch('/api/warnings', { method: 'POST', body: fd }); e.target.reset(); loadWarnings(); alert('✅ تم تسجيل الإنذار بنجاح!'); }
         async function decideWarning(id) { const dec = prompt('القرار:'); if(dec) { await fetch(`/api/warnings/${id}/admin`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({decision: dec}) }); loadWarnings(); } }
 
         async function loadUsers() { const res = await fetch('/api/users'); const data = await res.json(); const tbody = document.getElementById('users-table-body'); tbody.innerHTML = ''; data.users.forEach(u => { tbody.innerHTML += `<tr class="border-b"><td class="p-3 font-bold">${u.FullName}</td><td class="p-3 text-gray-500" dir="ltr">${u.Username}</td><td class="p-3"><span class="bg-gray-100 px-2 py-1 rounded text-xs">${roleNames[u.Role]}</span></td><td class="p-3 text-center"><button onclick="deleteUser(${u.UserID})" class="bg-red-100 text-red-700 px-3 rounded"><i class="fas fa-trash"></i></button></td></tr>`; }); }
