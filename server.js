@@ -25,7 +25,7 @@ const db = mysql.createPool({
     dateStrings: true
 });
 
-// تحديث قاعدة البيانات أوتوماتيكياً
+// تحديث قاعدة البيانات أوتوماتيكياً (لإضافة أعمدة الملفات)
 db.query('ALTER TABLE inquiries ADD COLUMN FilePath VARCHAR(255) NULL', (err) => { if(!err) console.log('✅ تم إضافة عمود FilePath للاستفسارات'); });
 db.query('ALTER TABLE warnings ADD COLUMN FilePath VARCHAR(255) NULL', (err) => { if(!err) console.log('✅ تم إضافة عمود FilePath للإنذارات'); });
 
