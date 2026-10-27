@@ -30,7 +30,7 @@ const upload = multer({ storage: multer.diskStorage({ destination: (req, file, c
 
 // --- الذكاء الاصطناعي ---
 app.post('/api/ai-consult', async (req, res) => {
-    const apiKey = 'YOUR_GEMINI_API_KEY'; 
+    const apiKey = process.env.GEMINI_API_KEY;
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     const prompt = `أنت مستشار قانوني جزائري خبير في قانون العمل الداخلي. قدم رأيك القانوني السري لمسؤولة النزاعات بخصوص هذه القضية (أعطها الثغرات والحل المقترح في 4 أسطر كحد أقصى):\nالوقائع: ${req.body.description}`;
     try {
