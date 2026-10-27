@@ -11,11 +11,9 @@ app.use(express.json());
 app.use(express.static(__dirname)); 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// التأكد من وجود مجلد المرفقات
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) { fs.mkdirSync(uploadDir, { recursive: true }); }
 
-// الاتصال بقاعدة البيانات في Clever Cloud
 const db = mysql.createPool({
     connectionLimit: 3,
     host: 'bdj70168ffojqcl967nx-mysql.services.clever-cloud.com',
@@ -25,11 +23,9 @@ const db = mysql.createPool({
     dateStrings: true
 });
 
-// تحديث قاعدة البيانات أوتوماتيكياً (لإضافة أعمدة الملفات)
 db.query('ALTER TABLE inquiries ADD COLUMN FilePath VARCHAR(255) NULL', (err) => { if(!err) console.log('✅ تم إضافة عمود FilePath للاستفسارات'); });
 db.query('ALTER TABLE warnings ADD COLUMN FilePath VARCHAR(255) NULL', (err) => { if(!err) console.log('✅ تم إضافة عمود FilePath للإنذارات'); });
 
-// إعداد رافع الملفات (Multer)
 const upload = multer({ storage: multer.diskStorage({ destination: (req, file, cb) => cb(null, 'uploads/'), filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)) }) });
 
 // --- الذكاء الاصطناعي ---
@@ -69,15 +65,17 @@ app.post('/api/lawyers', (req, res) => { db.query('INSERT INTO lawyers (FullName
 app.delete('/api/lawyers/:id', (req, res) => { db.query('DELETE FROM lawyers WHERE LawyerID = ?', [req.params.id], err => res.json({ success: !err })); });
 app.post('/api/contracts', upload.single('file'), (req, res) => { const fp = req.file ? 'uploads/' + req.file.filename : ''; const { employeeName, contractType, lawyerId, createdBy } = req.body; db.query('INSERT INTO contracts (EmployeeName, ContractType, FilePath, LawyerID, CreatedBy_FullName) VALUES (?, ?, ?, ?, ?)', [employeeName, contractType, fp, lawyerId, createdBy], (err) => { res.json({ success: !err }); }); });
 
-// --- الاستفسارات (مع المرفقات) ---
+// --- الاستفسارات ---
 app.get('/api/inquiries', (req, res) => { db.query('SELECT * FROM inquiries ORDER BY InquiryID DESC', (err, results) => res.json({ success: true, inquiries: results || [] })); });
 app.post('/api/inquiries', upload.single('file'), (req, res) => { const fp = req.file ? 'uploads/' + req.file.filename : null; db.query('INSERT INTO inquiries (Title, Content, FilePath, CreatedBy) VALUES (?, ?, ?, ?)', [req.body.title, req.body.content, fp, req.body.createdBy], err => res.json({ success: !err })); });
 app.put('/api/inquiries/:id/admin', (req, res) => { db.query('UPDATE inquiries SET AdminReply = ?, Status = "تم الرد" WHERE InquiryID = ?', [req.body.reply, req.params.id], err => res.json({ success: !err })); });
+app.delete('/api/inquiries/:id', (req, res) => { db.query('DELETE FROM inquiries WHERE InquiryID = ?', [req.params.id], err => res.json({ success: !err })); });
 
-// --- الإنذارات (مع المرفقات) ---
+// --- الإنذارات ---
 app.get('/api/warnings', (req, res) => { db.query('SELECT * FROM warnings ORDER BY WarningID DESC', (err, results) => res.json({ success: true, warnings: results || [] })); });
 app.post('/api/warnings', upload.single('file'), (req, res) => { const fp = req.file ? 'uploads/' + req.file.filename : null; db.query('INSERT INTO warnings (EmployeeName, Reason, FilePath, CreatedBy) VALUES (?, ?, ?, ?)', [req.body.employeeName, req.body.reason, fp, req.body.createdBy], err => res.json({ success: !err })); });
 app.put('/api/warnings/:id/admin', (req, res) => { db.query('UPDATE warnings SET AdminDecision = ?, Status = "مؤكد" WHERE WarningID = ?', [req.body.decision, req.params.id], err => res.json({ success: !err })); });
+app.delete('/api/warnings/:id', (req, res) => { db.query('DELETE FROM warnings WHERE WarningID = ?', [req.params.id], err => res.json({ success: !err })); });
 
 // --- القوانين والأدوات ---
 app.get('/api/laws', (req, res) => { db.query('SELECT * FROM laws', (err, results) => res.json({ success: true, laws: results || [] })); });
