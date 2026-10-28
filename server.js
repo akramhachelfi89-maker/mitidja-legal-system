@@ -18,19 +18,22 @@ const db = mysql.createPool({
     connectionLimit: 3,
     host: 'bdj70168ffojqcl967nx-mysql.services.clever-cloud.com',
     user: 'urc79o1ctr3bctj4', 
-    password: 'lWO2Nxj2VAJxCZ7K2KIL',
+    password: 'lWO2Nxj2VAJxCZ7K2KIL', 
     database: 'bdj70168ffojqcl967nx',
     dateStrings: true
 });
 
-db.query('ALTER TABLE inquiries ADD COLUMN FilePath VARCHAR(255) NULL', (err) => { if(!err) console.log('✅ تم إضافة عمود FilePath للاستفسارات'); });
-db.query('ALTER TABLE warnings ADD COLUMN FilePath VARCHAR(255) NULL', (err) => { if(!err) console.log('✅ تم إضافة عمود FilePath للإنذارات'); });
+// تحديثات أوتوماتيكية لقاعدة البيانات (إضافة أعمدة المرفقات ورأي الموارد البشرية)
+db.query('ALTER TABLE inquiries ADD COLUMN FilePath VARCHAR(255) NULL', (err) => {});
+db.query('ALTER TABLE warnings ADD COLUMN FilePath VARCHAR(255) NULL', (err) => {});
+db.query('ALTER TABLE complaints ADD COLUMN HR_Opinion TEXT NULL', (err) => { if(!err) console.log('✅ تم إضافة عمود رأي الموارد البشرية'); });
+db.query('ALTER TABLE complaints ADD COLUMN HR_Status VARCHAR(50) DEFAULT "في الانتظار"', (err) => { if(!err) console.log('✅ تم إضافة عمود حالة رأي الموارد البشرية'); });
 
 const upload = multer({ storage: multer.diskStorage({ destination: (req, file, cb) => cb(null, 'uploads/'), filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)) }) });
 
 // --- الذكاء الاصطناعي ---
 app.post('/api/ai-consult', async (req, res) => {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY; 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     const prompt = `أنت مستشار قانوني جزائري خبير في قانون العمل الداخلي. قدم رأيك القانوني السري لمسؤولة النزاعات بخصوص هذه القضية (أعطها الثغرات والحل المقترح في 4 أسطر كحد أقصى):\nالوقائع: ${req.body.description}`;
     try {
@@ -59,6 +62,16 @@ app.put('/api/complaints/:id/resolve', (req, res) => { db.query(`UPDATE complain
 app.put('/api/complaints/:id/reassign', (req, res) => { db.query(`UPDATE complaints SET AssignedTo = ?, Status = 'محولة إداريا' WHERE ComplaintID = ?`, [req.body.assignee, req.params.id], err => res.json({ success: !err })); });
 app.put('/api/complaints/:id/admin', (req, res) => { db.query('UPDATE complaints SET AdminDecision = ?, Status = ? WHERE ComplaintID = ?', [req.body.adminDecision, req.body.status, req.params.id], err => res.json({ success: !err })); });
 
+// مسار رأي الموارد البشرية (RH)
+app.put('/api/complaints/:id/hr', (req, res) => {
+    const { opinion } = req.body;
+    const statusVal = opinion ? 'أبدى رأيه' : 'بدون رأي';
+    db.query('UPDATE complaints SET HR_Opinion = ?, HR_Status = ? WHERE ComplaintID = ?', 
+        [opinion || 'لم يقدم أي رأي.', statusVal, req.params.id], 
+        err => res.json({ success: !err })
+    );
+});
+
 // --- المحامين والعقود ---
 app.get('/api/lawyers', (req, res) => { db.query('SELECT * FROM lawyers', (err, results) => res.json({ success: true, lawyers: results || [] })); });
 app.post('/api/lawyers', (req, res) => { db.query('INSERT INTO lawyers (FullName, Email, PhoneNumber) VALUES (?, ?, ?)', [req.body.fullName, req.body.email, req.body.phone], err => res.json({ success: !err })); });
@@ -83,6 +96,5 @@ app.put('/api/laws', (req, res) => { db.query('UPDATE laws SET Content = ? WHERE
 app.get('/api/backup', (req, res) => { db.query('SELECT * FROM complaints', (err, complaints) => { if (err) return res.status(500).json({ success: false }); res.setHeader('Content-Type', 'application/json'); res.setHeader('Content-Disposition', 'attachment; filename="Sauvegarde_Cadets.json"'); res.send(JSON.stringify({ date_sauvegarde: new Date(), donnees: complaints }, null, 2)); }); });
 app.get('/api/notifications/count', (req, res) => { db.query('SELECT COUNT(*) as count FROM complaints WHERE Status = "تسجيل أولي"', (err, r) => res.json({ count: err ? 0 : r[0].count })); });
 
-// تشغيل السيرفر
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => { console.log(`✅ السيرفر شغال بنجاح على المنفذ ${PORT}`); });
